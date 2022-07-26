@@ -1,0 +1,156 @@
+installationSlug: default-installation
+
+# The deploy context - the kubernetes provider for whom specifically to adjust the resources
+# for possible values see availableContexts
+deployContext: microk8s
+
+gitVersion:
+  sha: undefined
+  branch: undefined
+
+#
+# Ingress configuration
+#
+ingress:
+  main:
+    # The host the ingress should be accessible on
+    deployUrl: foo.bara
+
+    # TLS serving configuration
+    tls:
+      enabled: false
+      # The name of the Kubernetes TLS secret to use for reading the certificate
+      secretName: tls-secret
+
+    # LetsEncrypt CertManager provider configuration
+    letsEncrypt:
+      enabled: false
+      # What is the name of the CertManager ClusterIssuer resource to pull the certificate from
+      clusterIssuer: cluster-issuer
+
+    # List of IPs allowed to connect to the ingress resource. This will be put into a nginx annotation 'nginx.ingress.kubernetes.io/whitelist-source-range'
+    allowedIps: ~ # xx
+    # The nginx controller class to use
+    class: public
+    host:
+      pathType: Prefix
+      path: '/'
+
+  # More ingresses in addition to the main one. The structure of the configuration dict is:
+  #   additional:
+  #     any-custom-name:
+  #       deployUrl:
+  #       allowedIps:
+  #       ...
+  # The config under 'any-custom-name' is the same as for the main ingress above. Any configuration key may be omitted
+  # in which case a default from the main ingress will be used. For example, to allow access to a particular path to
+  # the public, use:
+  #
+  #   additional:
+  #     minimal:
+  #       allowedIps: 0.0.0.0/0
+  #       host:
+  #         path: '/public/digital_signature/assently_api/receive_event'
+  #
+
+web:
+  # Docker image of php-nginx to deploy
+  image: ~
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 800Mi # Upper estimate, subject to change based on empirical values
+      cpu: 1
+#  volumeMounts:
+#    - name: pace-dataplatform-secret-volume
+#      mountPath: /mnt/dataplatform
+#  volumes:
+#    - name: pace-dataplatform-secret-volume
+#      csi:
+#        driver: secrets-store.csi.k8s.io
+#        readOnly: true
+#        volumeAttributes:
+#          secretProviderClass: pace-dataplatform-secret-provider
+
+messengerConsumers:
+  asyncReplicas: 2
+  sequentialReplicas: 1
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 50m
+    limits:
+      memory: 512Mi # Upper estimate, subject to change based on empirical values
+      cpu: 500m
+
+scheduler:
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 50m
+    limits:
+      memory: 512Mi # Upper estimate, subject to change based on empirical values
+      cpu: 500m
+
+statsd:
+  image: registry.rohea.com/ops/docker-images/statsd:1.1.5
+
+maintenancePage:
+  image: todo-maintenance-page
+
+postfix:
+  enabled: true
+  image: registry.rohea.com/ops/docker-images/postfix:1.0.0
+
+express:
+  enabled: false
+  image: todo-express
+
+paceDev:
+  enabled: false
+  image: todo-pacedev
+
+migrationsJob:
+  enabled: false
+  datetime: undefined
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 100m
+    limits:
+      memory: 1024Mi # Upper estimate, subject to change based on empirical values
+      cpu: 1
+
+deleteDbJob:
+  enabled: false
+  datetime: undefined
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 0.1
+    limits:
+      memory: 512Mi
+      cpu: 2
+
+# Sentry integration
+sentry:
+  # If true, Sentry relay will be deployed and Sentry events reported through it
+  enabled: false
+
+imagePullSecrets:
+- name: k8s-pull-project
+- name: k8s-pull-docker-images
+
+networkPolicies:
+  enabled: true
+
+# If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
+# may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to
+# restart the containers automatically.
+enableKubernetesProbes: true
+
+availableContexts:
+  - microk8s
+  - azure

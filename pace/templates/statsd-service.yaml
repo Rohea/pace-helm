@@ -1,0 +1,16 @@
+{{ $componentName := "statsd" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: statsd
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+spec:
+  selector:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+  ports:
+    - protocol: UDP
+      port: 8125
+      targetPort: 8125

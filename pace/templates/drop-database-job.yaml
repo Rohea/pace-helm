@@ -1,0 +1,56 @@
+{{- if .Values.deleteDbJob.enabled }}
+
+{{- if ne .Values.deployContext "microk8s" -}}
+{{- fail "Dropping the database through a job is only supported for the microk8s context" }}
+{{- end }}
+
+{{ $componentName := "pace-drop-database" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pace-drop-database-{{ .Values.deleteDbJob.datetime }}
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        {{- include "pace.labels.component" $componentDict | nindent 8 }}
+        pace.rohea.com/allow-network-db: "true"
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: drop-db
+          image: {{ .Values.web.image }}
+          command:
+            - "bash"
+            - "-c"
+            - |
+              set -e -E
+
+              bin/console doctrine:mongodb:schema:drop -e "staging" | tee drop.log || true  # This needs to be set to true due to the "ns not found" problem that makes the whole command return code 255 even though it actually did delete the database
+
+              if grep -q 'Dropped dbs for all classes' drop.log; then
+                echo "Database dropped successfully"
+                exit 0
+              else
+                echo "Failed to drop the database, aborting"
+                exit 1
+              fi
+          imagePullPolicy: Always
+
+          resources:
+            {{- toYaml .Values.deleteDbJob.resources | nindent 12 }}
+
+          envFrom:
+            - configMapRef:
+                name: pace
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

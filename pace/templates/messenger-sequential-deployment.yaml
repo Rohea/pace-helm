@@ -1,0 +1,49 @@
+{{ $componentName := "messenger-consumer-sequential" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messenger-consumer-sequential
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+    rohea.com/stop-during-deploy: 'true'
+  annotations:
+    {{- include "pace.annotations.change-cause" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.messengerConsumers.sequentialReplicas }}
+  selector:
+    matchLabels:
+      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+  progressDeadlineSeconds: 300
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "pace.labels.component" $componentDict | nindent 8 }}
+        pace.rohea.com/allow-network-db: "true"
+        rohea.com/stop-during-deploy: 'true'
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: messenger-consumer
+          image: {{ .Values.web.image }}
+          args:
+            - messenger-sequential
+          imagePullPolicy: Always
+          envFrom:
+            {{- include "pace.envFrom" . | nindent 12 }}
+          volumeMounts:
+            {{- include "pace.volumeMounts" . | nindent 12 }}
+            {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
+          resources:
+            {{- toYaml .Values.messengerConsumers.resources | nindent 12 }}
+        {{- include "deployment.sentry-relay" . | nindent 8 }}
+      volumes:
+        {{- include "pace.volumes" . | nindent 8 }}
+        {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

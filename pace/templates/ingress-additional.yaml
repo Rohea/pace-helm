@@ -1,0 +1,42 @@
+{{/*
+Note on the parentheses in | default expansion such as the following:
+  {{- if (($definition.letsEncrypt).enabled | default $.Values.ingress.main.letsEncrypt.enabled) }}
+The parentheses are required in order for Helm not to throw null-pointer-errors when $definition.letsEncrypt is not defined.
+Somehow the parentheses fix this and allow us to navigate deeper without throwing errors and then defaulting to the main ingress values.
+See https://github.com/helm/helm/issues/8026#issuecomment-881216078
+*/}}
+
+{{- range $name, $definition := .Values.ingress.additional }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-{{ $name }}
+  annotations:
+    {{- include "pace.annotations.ingress" (dict "local" $definition "main" $.Values.ingress.main) | nindent 4 }}
+  labels:
+    pace.rohea.com/component: pace-ingress
+spec:
+  {{- if (($definition.tls).enabled | default $.Values.ingress.main.tls.enabled) }}
+  tls:
+    - hosts:
+      - "{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}"
+      {{- if (($definition.tls).secretName | default false) }}
+      secretName: {{ $definition.tls.secretName }}
+      {{- else }}
+      secretName: {{ $.Values.ingress.main.tls.secretName }}-{{ $name }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - host: "{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}"
+      http:
+        paths:
+          - pathType: {{ ($definition.host).pathType | default $.Values.ingress.main.host.pathType }}
+            path: "{{ ($definition.host).path | default $.Values.ingress.main.host.path }}"
+            backend:
+              service:
+                name: pace
+                port:
+                  number: 80
+---
+{{- end }}

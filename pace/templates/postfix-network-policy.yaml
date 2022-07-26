@@ -1,0 +1,31 @@
+{{- if .Values.networkPolicies.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postfix-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      rohea.com/component: postfix
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              rohea.com/component: web
+        - podSelector:
+            matchLabels:
+              rohea.com/component: scheduler
+        - podSelector:
+            matchLabels:
+              rohea.com/component: messenger-consumer-async
+        - podSelector:
+            matchLabels:
+              rohea.com/component: messenger-consumer-sequential
+
+      ports:
+        - protocol: TCP
+          port: 587
+
+{{- end }}

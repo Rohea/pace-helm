@@ -1,0 +1,43 @@
+{{- if .Values.migrationsJob.enabled }}
+
+{{ $componentName := "pace-database-migrations" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pace-database-migrations-{{ .Values.migrationsJob.datetime }}
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        {{- include "pace.labels.component" $componentDict | nindent 8 }}
+        pace.rohea.com/allow-network-db: "true"
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: migrations
+          image: {{ .Values.web.image }}
+          args:
+            - migrations
+          imagePullPolicy: Always
+          resources:
+            {{- toYaml .Values.migrationsJob.resources | nindent 12 }}
+          envFrom:
+            {{- include "pace.migrations.envFrom" . | nindent 12 }}
+          volumeMounts:
+            {{- include "pace.migrations.volumeMounts" . | nindent 12 }}
+            {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end }}
+      volumes:
+        {{- include "pace.migrations.volumes" . | nindent 8 }}
+        {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+{{- end }}
