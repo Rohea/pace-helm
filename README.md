@@ -2,6 +2,9 @@
 
 Pace is a digital sales enablement platform. See [paceautomation.io](https://www.paceautomation.io/) for more details.
 
+**Read only!** This repository is automatically mirrored from `rh/rh` in Rohea's private GitLab 
+into [Rohea/pace-helm](https://github.com/Rohea/pace-helm) in GitHub. 
+
 ## Deploying Pace with this repository
 This repository contains a Helm chart as well as some supporting scripts. The chart is **only meant to be used to generate YAML files** with `helm template`. 
 The files should then be applied with `kubectl` or the like. Do not use `helm install`, it will not work (well).
