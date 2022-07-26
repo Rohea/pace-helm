@@ -1,0 +1,41 @@
+{{ $componentName := "maintenance-page" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-page
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+  annotations:
+    {{- include "pace.annotations.change-cause" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+  progressDeadlineSeconds: 180
+  template:
+    metadata:
+      labels:
+        {{- include "pace.labels.component" $componentDict | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: maintenance-page
+          image: {{ .Values.maintenancePage.image }}
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 50Mi
+              cpu: 5m
+            limits:
+              memory: 100Mi
+              cpu: 10m
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

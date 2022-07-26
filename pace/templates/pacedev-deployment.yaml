@@ -1,0 +1,48 @@
+{{- if .Values.paceDev.enabled }}
+
+{{ $componentName := "pacedev" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pacedev
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+  progressDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        {{- include "pace.labels.component" $componentDict | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: pacedev
+          image: {{ .Values.paceDev.image }}
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+          {{- if .Values.enableKubernetesProbes }}
+          livenessProbe:
+            httpGet:
+              port: 80
+              path: /
+            initialDelaySeconds: 15
+          {{- end }}
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 5m
+            limits:
+              memory: 64Mi
+              cpu: 50m
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+{{- end }}

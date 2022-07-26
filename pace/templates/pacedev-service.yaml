@@ -1,0 +1,17 @@
+{{- if .Values.paceDev.enabled }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pacedev
+spec:
+  selector:
+    rohea.com/installation: {{ .Values.installationSlug }}
+    rohea.com/app: pace
+    rohea.com/component: pacedev
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+
+{{- end }}

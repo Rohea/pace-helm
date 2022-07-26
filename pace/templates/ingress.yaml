@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    {{- include "pace.annotations.ingress" (dict "local" .Values.ingress.main "main" $.Values.ingress.main) | nindent 4 }}
+
+  labels:
+    pace.rohea.com/component: pace-ingress
+spec:
+  {{- if .Values.ingress.main.tls.enabled }}
+  tls:
+    - hosts:
+      - "{{- required "Configuration key 'ingress.main.deployUrl' is required" .Values.ingress.main.deployUrl }}"
+      secretName: {{ .Values.ingress.main.tls.secretName }}
+  {{- end }}
+  rules:
+    - host: "{{ .Values.ingress.main.deployUrl }}"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: pace
+                port:
+                  number: 80

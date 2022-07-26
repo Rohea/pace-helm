@@ -1,0 +1,30 @@
+{{- if .Values.paceDev.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-pacedev
+  annotations:
+    {{- include "pace.annotations.ingress" (dict "local" .Values.ingress.main "main" $.Values.ingress.main) | nindent 4 }}
+  labels:
+    pace.rohea.com/component: pace-ingress
+spec:
+  {{- if .Values.ingress.main.tls.enabled }}
+  tls:
+    - hosts:
+      - "pacedev.{{- required "Configuration key 'ingress.main.deployUrl' is required" .Values.ingress.main.deployUrl }}"
+      secretName: letsencrypt-tls-pace-pacedev
+  {{- end }}
+  rules:
+    - host: pacedev.{{ .Values.ingress.main.deployUrl }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: pacedev
+                port:
+                  number: 80
+
+{{- end }}

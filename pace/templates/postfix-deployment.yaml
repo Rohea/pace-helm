@@ -1,0 +1,54 @@
+{{- if .Values.postfix.enabled }}
+
+{{ $componentName := "postfix" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postfix
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "pace.labels.component" $componentDict | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: postfix
+          image: {{ .Values.postfix.image }}
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: postfix-env
+
+          volumeMounts:
+            - name: dkimkeys  # This is only populated when the 'dkimkeys' secret exists in the namespace. If not, this has no effect.
+              mountPath: "/etc/opendkim/keys"
+              readOnly: true
+
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 10m
+            limits:
+              memory: 128Mi
+              cpu: 100m
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: dkimkeys
+          secret:
+            secretName: dkimkeys
+            optional: true
+
+{{- end }}
