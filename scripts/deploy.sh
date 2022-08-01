@@ -227,7 +227,7 @@ else
   echo "Deploying the database migration job with ID ${migration_job_temp_id}..."
 
   kubectl -n "$NAMESPACE" apply -f "${migrations_fn}"
-  kubectl -n "$NAMESPACE" label -f "${migrations_fn}" rohea.com/migration_id="${migration_job_temp_id}"
+  kubectl -n "$NAMESPACE" label -f "${migrations_fn}" --overwrite rohea.com/migration_id="${migration_job_temp_id}"
   wait_for_migration_job_finish "$NAMESPACE" "$migration_job_temp_id"
 
   # Remove old migration jobs

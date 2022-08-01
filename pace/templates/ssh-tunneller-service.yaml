@@ -1,0 +1,17 @@
+{{- if .Values.sshTunneller.enabled }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-tunnel
+spec:
+  selector:
+    rohea.com/installation: {{ .Values.installationSlug }}
+    rohea.com/app: pace
+    rohea.com/component: mongo-tunnel
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+
+{{- end }}

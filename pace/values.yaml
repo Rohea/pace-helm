@@ -112,6 +112,20 @@ paceDev:
   enabled: false
   image: todo-pacedev
 
+mongoAtlasLogforwarder:
+  enabled: false
+  image: empty
+
+sshTunneller:
+  enabled: false
+  image: empty
+  tunnel:
+    remoteForwardTo: localhost
+    remotePort: 27017
+    remoteHost: ~
+    remoteHostSshPort: 22
+    autosshPort: ~
+
 migrationsJob:
   enabled: false
   datetime: undefined

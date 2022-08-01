@@ -1,0 +1,68 @@
+{{- if .Values.sshTunneller.enabled }}
+
+{{ $componentName := "mongo-tunnel" }}
+{{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-tunnel
+  labels:
+    {{- include "pace.labels.component" $componentDict | nindent 4 }}
+  annotations:
+    {{- include "pace.annotations.change-cause" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+  progressDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        {{- include "pace.labels.component" $componentDict | nindent 8 }}
+        rohea.com/stop-during-deploy: 'true'
+        pace.rohea.com/allow-network-db: "true"
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: mongo-tunnel
+          image: {{ .Values.sshTunneller.image }}
+          args:
+            - '27017'
+            - '{{ .Values.sshTunneller.tunnel.remoteForwardTo }}'
+            - '{{ .Values.sshTunneller.tunnel.remotePort }}'
+            - '{{ .Values.sshTunneller.tunnel.remoteHost }}'
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 27017
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: mongotunnel-config-secret-resource
+          env:
+            - name: TUNNEL_THROUGH_PORT
+              value: '{{ .Values.sshTunneller.tunnel.remoteHostSshPort }}'
+            - name: TUNNEL_AUTOSSH_PORT
+              value: '{{ .Values.sshTunneller.tunnel.autosshPort }}'
+          resources:
+              requests:
+                  memory: 32Mi
+                  cpu: 0.01
+              limits:
+                  memory: 256Mi
+                  cpu: 0.5
+          volumeMounts:
+            - mountPath: /mnt/xxx
+              name: mongo-tunnel-secrets
+      volumes:
+        - name: mongo-tunnel-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: mongotunnel-config-secret
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
