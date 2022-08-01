@@ -1,3 +1,4 @@
+{{- if .Values.postfix.enabled }}
 {{- if .Values.networkPolicies.enabled }}
 
 apiVersion: networking.k8s.io/v1
@@ -28,4 +29,5 @@ spec:
         - protocol: TCP
           port: 587
 
+{{- end }}
 {{- end }}

@@ -1,0 +1,22 @@
+{{- if .Values.networkPolicies.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-certmgr-solver-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      rohea.com/component: certmgr-solver
+
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              pace.rohea.com/component-namespace: ingress
+
+      ports:
+        - protocol: TCP
+          port: 8089
+
+{{- end }}
