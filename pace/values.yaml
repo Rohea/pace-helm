@@ -131,10 +131,10 @@ migrationsJob:
   datetime: undefined
   resources:
     requests:
-      memory: 512Mi
+      memory: 1024Mi
       cpu: 100m
     limits:
-      memory: 1024Mi # Upper estimate, subject to change based on empirical values
+      memory: 1024Mi
       cpu: 1
 
 deleteDbJob:
