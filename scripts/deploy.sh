@@ -71,8 +71,6 @@ if [[ $# != 2 ]]; then
   exit 1
 fi
 
-set -x
-
 assert_file_exists "$pace_stack_fn"
 assert_file_exists "$migrations_fn"
 
@@ -150,6 +148,16 @@ function wait_for_migration_job_finish()
       echo ""
       echo "Migration job failed! Aborting the deploy. It is possible that the database is in an inconsistent state so automatic rollback is not possible. Please fix everything manually."
       exit 1
+  fi
+}
+
+function delete_resource_if_exists()
+{
+  _name="$1"
+  echo "Deleting resource \"$_name\" if it exists..."
+
+  if kubectl -n "$NAMESPACE" get "$_name" >/dev/null 2>&1; then
+    kubectl -n "$NAMESPACE" delete "$_name"
   fi
 }
 
@@ -237,6 +245,13 @@ else
     kubectl -n "$NAMESPACE" delete job "$job"
   done
 fi
+
+#
+# Delete old/deprecated resources
+#
+echo "Deleting old resources..."
+delete_resource_if_exists "ingress/${APP_NAME}"
+delete_resource_if_exists "ingress/${APP_NAME}-pacedev"
 
 #
 # Deploying new image
