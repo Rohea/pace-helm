@@ -158,7 +158,7 @@ imagePullSecrets:
 - name: k8s-pull-docker-images
 
 networkPolicies:
-  enabled: true
+  enabled: false
 
 # If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
 # may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to
