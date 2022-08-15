@@ -112,25 +112,26 @@ function wait_for_zero_scale()
 # The function will wait for a migration job to finish, both for successful and failed state.
 #
 #  $1: the Kubernetes namespace where to work
-#  $2: the deploy_id label of the job to look for
+#  $2: the name of the migrations Job
 #
 # From: https://stackoverflow.com/a/66676381/428173
 function wait_for_migration_job_finish()
 {
   _ns="$1"
-  _deploy_id="$2"
+  _job_name="$2"
 
-  _selector='-l rohea.com/app=pace -l rohea.com/component=pace-database-migrations -l rohea.com/migration_id='"$_deploy_id"
+  echo "Waiting for the migration job \"$_job_name\" in namespace \"$_ns\" to finish..."
 
-  echo "Waiting for the migration job with ID \"$_deploy_id\" in namespace \"$_ns\" to finish..."
+  _pod_name=$(kubectl -n "$_ns" get pods --no-headers -o custom-columns=":metadata.name" -l "job-name=$_job_name")
+  echo "The pod associated with the job is: \"$_pod_name\""
 
   while true; do
-    if kubectl -n "$_ns" wait ${_selector} --for=condition=complete --timeout=0 job 2>/dev/null; then
+    if kubectl -n "$_ns" wait --for=condition=complete --timeout=0 job "$_job_name" 2>/dev/null; then
       job_result=0
       break
     fi
 
-    if kubectl -n "$_ns" wait ${_selector} --for=condition=failed --timeout=0 job 2>/dev/null; then
+    if kubectl -n "$_ns" wait --for=condition=failed --timeout=0 job "$_job_name" 2>/dev/null; then
       job_result=1
       break
     fi
@@ -139,9 +140,9 @@ function wait_for_migration_job_finish()
   done
 
   echo "********************************"
-  echo "Migrations job log output"
+  echo "Migrations job log output (pod $_pod_name)"
   echo "********************************"
-  kubectl -n "$_ns" logs ${_selector} --tail=-1
+  kubectl -n "$_ns" logs --tail=-1 "$_pod_name"
   echo "********************************"
 
   if [[ $job_result -eq 1 ]]; then
@@ -231,12 +232,12 @@ fi
 if [[ "$SKIP_MIGRATIONS" == "true" ]]; then
   echo "Skipping migrations due to --skip-migrations flag enabled"
 else
-  migration_job_temp_id="$DATETIME"
-  echo "Deploying the database migration job with ID ${migration_job_temp_id}..."
+  echo "Deploying the database migration job..."
 
   kubectl -n "$NAMESPACE" apply -f "${migrations_fn}"
-  kubectl -n "$NAMESPACE" label -f "${migrations_fn}" --overwrite rohea.com/migration_id="${migration_job_temp_id}"
-  wait_for_migration_job_finish "$NAMESPACE" "$migration_job_temp_id"
+  migration_job_name=$(kubectl -n "$NAMESPACE" get -f "${migrations_fn}" --no-headers -o custom-columns=":metadata.name")
+  echo "  ... with name \"$migration_job_name\""
+  wait_for_migration_job_finish "$NAMESPACE" "$migration_job_name"
 
   # Remove old migration jobs
   echo "Pruning previous migration jobs (keeping last $KEEP_LAST_X_MIGRATION_JOBS)..."
