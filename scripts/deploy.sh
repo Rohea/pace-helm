@@ -36,6 +36,10 @@ assert_file_exists() {
   fi
 }
 
+# Import functions
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+source "$DIR/common.sh"
+
 #
 # Argument and parameter parsing
 #
@@ -82,32 +86,6 @@ rollout_wait_timeout="8m"
 
 echo "Deploying app '${APP_NAME}' into namespace '${NAMESPACE}'"
 
-# The function will block until there are zero pods with the following labels:
-#   rohea.com/installation: $APP_NAME
-function wait_for_zero_scale()
-{
-  ATTEMPTS=100
-  i=0
-  while [[ "$i" -lt $ATTEMPTS ]]; do
-    printf "\n********************************\nChecking the number of pods labelled with '%s'\n" 'rohea.com/stop-during-deploy="true"'
-
-    pods_output=$(kubectl -n "$NAMESPACE" get pods -l rohea.com/app=pace -l rohea.com/installation="$APP_NAME" -l rohea.com/stop-during-deploy='true')
-
-    printf "\n----\n%s\n----\n" "$pods_output"
-    pods_count_incl_header=$(echo "$pods_output" | wc -l)
-    echo "Current number of pods waiting to be terminated: $(( pods_count_incl_header - 1))"
-
-    if [[ $pods_count_incl_header -eq 1 ]]; then
-      echo "Pods have been scaled down."
-      break
-    else
-      echo "Pods have not yet been scaled down. Re-checking in 5 seconds..."
-    fi
-
-    sleep 5
-  done
-}
-
 #
 # The function will wait for a migration job to finish, both for successful and failed state.
 #
@@ -123,6 +101,11 @@ function wait_for_migration_job_finish()
   echo "Waiting for the migration job \"$_job_name\" in namespace \"$_ns\" to finish..."
 
   _pod_name=$(kubectl -n "$_ns" get pods --no-headers -o custom-columns=":metadata.name" -l "job-name=$_job_name")
+  while [[ ! $_pod_name ]]; do
+    echo "No pod created for migration job \"$_job_name\" yet, re-checking in 5 seconds..."
+    sleep 5
+    _pod_name=$(kubectl -n "$_ns" get pods --no-headers -o custom-columns=":metadata.name" -l "job-name=$_job_name")
+  done
   echo "The pod associated with the job is: \"$_pod_name\""
 
   while true; do
@@ -167,63 +150,18 @@ if ! kubectl describe ns/"$NAMESPACE" >/dev/null 2>&1; then
   kubectl create ns "$NAMESPACE"
 fi
 
+enable_maintenance "$NAMESPACE" || true
+
 #
-# Check if a deployment already exists. If it does, then switch ingress to maintenance mode and scale down
-# the deployment
+# Clearing out all failed pods
 #
-if kubectl -n "$NAMESPACE" get deployment pace; then
-  echo "pace deployment already exists. Will scale it down first."
-
-  if kubectl -n "$NAMESPACE" get deployment maintenance-page; then
-    echo "maintenance page deployment exists. Scaling up to 1 replica."
-    kubectl -n "$NAMESPACE" scale deployment/maintenance-page --replicas=1
-
-    # TODO we sleep here instead of polling status because the GitLab Kubernetes agent connection trips up.. see todo below
-    # kubectl -n "$NAMESPACE" rollout status deployment/maintenance-page
-    sleep 10
-  else
-    echo "maintenance page deployment does not exist, skipping its scaling up."
-  fi
-
-  #
-  # Redirecting ingress traffic to the maintenance-page component
-  #
-  # Note: this command expects that there is only a single rule with a single HTTP path config in the ingress.
-  #
-  echo "Enabling maintenance page..."
-  ingresses_names=$(kubectl -n "$NAMESPACE" get ingresses.v1.networking.k8s.io --no-headers -o custom-columns=":metadata.name" --selector pace.rohea.com/component=pace-ingress)
-  if [[ -z "$ingresses_names" ]]; then
-    echo "  No ingresses defined, skipping patching it for maintenance."
-    # TODO: instead of skipping the ingress patch there could be a file that deploys the maintenance page and relevant ingress -- we'd get maintenance during initial deploy
-  else
-    for ingress_name in $ingresses_names; do
-      echo "  Patching ingress: $ingress_name"
-      kubectl -n "$NAMESPACE" patch ingresses.v1.networking.k8s.io "$ingress_name" --type=json \
-              -p='[{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value":"maintenance-page"}]'
-    done
-  fi
-
-  #
-  # Stopping the previous deployment
-  #
-  echo "Scaling down the current deployments..."
-  kubectl -n "$NAMESPACE" scale deployment pace --replicas 0 || true  # todo this can be removed when all deployments are annotated with rohea.com/stop-during-deploy='true'
-  kubectl -n "$NAMESPACE" scale deployment express --replicas 0 || true  # todo this can be removed when all deployments are annotated with rohea.com/stop-during-deploy='true'
-  kubectl -n "$NAMESPACE" scale deployment -l rohea.com/stop-during-deploy='true' --replicas 0 || true
-
-  # Clearing out all failed pods
-  failed_pods=$(kubectl -n "$NAMESPACE" get pods --field-selector status.phase==Failed --ignore-not-found --no-headers)
-  if [[ -n "$failed_pods" ]]; then
-    echo "Failed pods in namespace $NAMESPACE that will be deleted:"
-    echo "$failed_pods"
-    echo "$failed_pods" | awk '{ print $1 }' | xargs kubectl -n "$NAMESPACE" delete pod
-  else
-    echo "No failed pods in namespace $NAMESPACE, not deleting any pods."
-  fi
-
-  wait_for_zero_scale
+failed_pods=$(kubectl -n "$NAMESPACE" get pods --field-selector status.phase==Failed --ignore-not-found --no-headers)
+if [[ -n "$failed_pods" ]]; then
+  echo "Failed pods in namespace $NAMESPACE that will be deleted:"
+  echo "$failed_pods"
+  echo "$failed_pods" | awk '{ print $1 }' | xargs kubectl -n "$NAMESPACE" delete pod
 else
-  echo "There is no existing deployment, not setting maintenance page on"
+  echo "No failed pods in namespace $NAMESPACE, not deleting any pods."
 fi
 
 #
