@@ -9,7 +9,7 @@
   imagePullPolicy: Always
   env:
     - name: RELAY_UPSTREAM_URL
-      value: https://sentry.rohea.com
+      value: https://sentry-relay-dmz.rohea.com:3443
     - name: RELAY_MODE
       value: proxy
     - name: RELAY_HOST
