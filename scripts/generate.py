@@ -3,6 +3,7 @@ import argparse
 from typing import *
 import sys
 import subprocess
+from datetime import datetime
 
 
 def print_stderr(msg):
@@ -73,9 +74,14 @@ def main():
 
     flags_str = ' '.join(flags)
 
+    deployTag = datetime.now().timestamp()
+
+    print(f'Using deploy tag "{deployTag}" and writing it into file "deploy_tag"')
+    Path('deploy_tag').write_text(str(deployTag))
+
     for cmd, target_fn in [
-        (f'helm template --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
-        (f'helm template {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
+        (f'helm template --set deployTag={deployTag} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
+        (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
     ]:
         print_stderr(f'Executing command "{cmd}" and saving as "{target_fn}"')
         output = run_bash(cmd)

@@ -23,7 +23,7 @@ wait_for_zero_scale() {
 
   while true; do
     echo "Checking whether all deployments have been scaled down"
-    pods_output=$(kubectl -n "$_ns" get pods -l rohea.com/app=pace -l rohea.com/stop-during-deploy='true')
+    pods_output=$(kubectl -n "$_ns" get pods -l rohea.com/app=pace,rohea.com/stop-during-deploy='true')
 
     pods_count_incl_header=$(echo "$pods_output" | wc -l)
     echo "  Number of pods still to terminate: $(( pods_count_incl_header - 1))"

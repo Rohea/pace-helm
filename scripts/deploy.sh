@@ -179,21 +179,14 @@ else
 
   # Remove old migration jobs
   echo "Pruning previous migration jobs (keeping last $KEEP_LAST_X_MIGRATION_JOBS)..."
-  jobs_to_prune=$(kubectl -n "$NAMESPACE" get jobs -l rohea.com/app=pace -l rohea.com/component=pace-database-migrations --no-headers -o custom-columns=:metadata.name | sort -r | awk 'NR>'"${KEEP_LAST_X_MIGRATION_JOBS}"' { print $1 }')
+  jobs_to_prune=$(kubectl -n "$NAMESPACE" get jobs -l rohea.com/app=pace,rohea.com/component=pace-database-migrations --no-headers -o custom-columns=:metadata.name | sort -r | awk 'NR>'"${KEEP_LAST_X_MIGRATION_JOBS}"' { print $1 }')
   for job in $jobs_to_prune; do
     kubectl -n "$NAMESPACE" delete job "$job"
   done
 fi
 
 #
-# Delete old/deprecated resources
-#
-echo "Deleting old resources..."
-delete_resource_if_exists "ingress/${APP_NAME}"
-delete_resource_if_exists "ingress/${APP_NAME}-pacedev"
-
-#
-# Deploying new image
+# Deploy new code
 #
 echo "Deploying new code..."
 kubectl -n "$NAMESPACE" apply -f "$pace_stack_fn"
@@ -212,6 +205,24 @@ kubectl -n "$NAMESPACE" apply -f "$pace_stack_fn"
 # TODO this is here instead of the proper waiting through kubectl API due to a GitLab bug: https://gitlab.com/gitlab-org/gitlab/-/issues/343148
 #      when upgraded and bug is fixed, remove the sleep and uncomment the waiting above
 sleep 60
+
+#
+# Delete old/deprecated resources
+#
+echo 'Reading deploy tag from file "deploy_tag"'
+_deploy_tag=$(cat deploy_tag)
+echo "Using deploy tag \"${_deploy_tag}\""
+
+echo "Deleting old resources labelled with 'meta.rohea.com/resource-clearable=true' and meta.rohea.com/deploy-tag NOT equal to \"${_deploy_tag}\""
+resources_to_clear=$(kubectl -n "$NAMESPACE" get deploy,job,service,ing,networkpolicy -l 'meta.rohea.com/deploy-tag!='"${_deploy_tag}"',meta.rohea.com/resource-clearable=true' --no-headers -oname)
+if [[ ! $resources_to_clear ]]; then
+  echo "  No old resources to delete"
+else
+  for resource in $resources_to_clear; do
+    echo "  Deleting ${resource}..."
+    kubectl -n "$NAMESPACE" delete "$resource"
+  done
+fi
 
 if kubectl -n "$NAMESPACE" get deployment maintenance-page; then
   echo "maintenance page deployment exists. Scaling down to 0 replicas."

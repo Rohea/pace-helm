@@ -3,10 +3,12 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-    name: default-deny-all
+  name: default-deny-all
+  labels:
+    {{- include "pace.labels.deployTag" . | nindent 4 }}
 spec:
-    podSelector: {}
-    policyTypes:
-        - Ingress
+  podSelector: { }
+  policyTypes:
+    - Ingress
 
 {{- end }}

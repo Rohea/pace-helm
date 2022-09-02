@@ -7,6 +7,7 @@ metadata:
   annotations:
     {{- include "pace.annotations.ingress" (dict "local" .Values.ingress.main "main" $.Values.ingress.main) | nindent 4 }}
   labels:
+    {{- include "pace.labels.deployTag" . | nindent 4 }}
     pace.rohea.com/component: pace-ingress
 spec:
   {{- if .Values.ingress.main.tls.enabled }}

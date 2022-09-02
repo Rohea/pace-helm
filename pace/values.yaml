@@ -4,6 +4,10 @@ installationSlug: default-installation
 # for possible values see availableContexts
 deployContext: microk8s
 
+# The deploy tag should be a random string, unique to a particular deployment. It can be e.g. a timestamp. The tag
+# is used to identify which resources have been created by this deployment and which older resources should be pruned.
+deployTag: to-be-overridden
+
 gitVersion:
   sha: undefined
   branch: undefined

@@ -6,6 +6,7 @@ metadata:
     rohea.com/installation: {{ .Values.installationSlug }}
     rohea.com/app: pace
     rohea.com/component: maintenance-page
+    {{- include "pace.labels.deployTag" . | nindent 4 }}
 spec:
   selector:
     rohea.com/installation: {{ .Values.installationSlug }}
