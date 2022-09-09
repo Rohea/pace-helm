@@ -99,7 +99,7 @@ scheduler:
       cpu: 500m
 
 statsd:
-  image: registry.rohea.com/ops/docker-images/statsd:1.1.7
+  image: registry.rohea.com/ops/docker-images/statsd:1.1.8
 
 maintenancePage:
   image: todo-maintenance-page
