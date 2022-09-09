@@ -36,7 +36,7 @@ spec:
           args:
             - web
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           imagePullPolicy: Always
           envFrom:
             {{- include "pace.envFrom" . | nindent 12 }}
