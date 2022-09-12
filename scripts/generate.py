@@ -79,8 +79,11 @@ def main():
     print(f'Using deploy tag "{deployTag}" and writing it into file "deploy_tag"')
     Path('deploy_tag').write_text(str(deployTag))
 
+    timestamp = datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
+    print(f'Using timestamp "{timestamp}" in the migration job')
+
     for cmd, target_fn in [
-        (f'helm template --set deployTag={deployTag} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
+        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
         (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
     ]:
         print_stderr(f'Executing command "{cmd}" and saving as "{target_fn}"')
