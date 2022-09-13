@@ -29,7 +29,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: messenger-consumer
-          image: {{ .Values.web.image }}
+          image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
           args:
             - messenger-async
           imagePullPolicy: Always

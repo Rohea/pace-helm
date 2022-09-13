@@ -59,7 +59,9 @@ ingress:
 
 web:
   # Docker image of php-nginx to deploy
-  image: ~
+  image:
+    repository: ~
+    tag: ~
   resources:
     requests:
       memory: 256Mi

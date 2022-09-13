@@ -21,7 +21,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrations
-          image: {{ .Values.web.image }}
+          image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
           args:
             - migrations
           imagePullPolicy: Always

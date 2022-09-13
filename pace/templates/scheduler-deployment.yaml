@@ -28,7 +28,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: scheduler
-          image: {{ .Values.web.image }}
+          image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
           args:
             - scheduler
           imagePullPolicy: Always

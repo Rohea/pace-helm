@@ -32,7 +32,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: php-nginx
-          image: {{ .Values.web.image }}
+          image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
           args:
             - web
           ports:

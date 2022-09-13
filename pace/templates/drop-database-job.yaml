@@ -26,7 +26,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: drop-db
-          image: {{ .Values.web.image }}
+          image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
           command:
             - "bash"
             - "-c"
