@@ -16,7 +16,7 @@ metadata:
     {{- include "pace.annotations.ingress" (dict "local" $definition "main" $.Values.ingress.main) | nindent 4 }}
   labels:
     pace.rohea.com/component: pace-ingress
-    {{- include "pace.labels.deployTag" . | nindent 4 }}
+    {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:
   {{- if (($definition.tls).enabled | default $.Values.ingress.main.tls.enabled) }}
   tls:
