@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: pace
   labels:
-    {{- include "pace.labels.deployTag" . | nindent 4 }}
+    {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:
   selector:
     rohea.com/installation: {{ .Values.installationSlug }}

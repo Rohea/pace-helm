@@ -13,7 +13,7 @@ metadata:
   name: pace-drop-database-{{ .Values.deleteDbJob.datetime }}
   labels:
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
-    {{- include "pace.labels.deployTag" . | nindent 4 }}
+    {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:
   backoffLimit: 0
   template:

@@ -9,7 +9,7 @@ metadata:
   name: express-print-server
   labels:
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
-    {{- include "pace.labels.deployTag" . | nindent 4 }}
+    {{- include "pace.labels.deployTag" $ | nindent 4 }}
     rohea.com/stop-during-deploy: 'true'
   annotations:
     {{- include "pace.annotations.change-cause" . | nindent 4 }}
