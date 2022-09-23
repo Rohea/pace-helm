@@ -9,7 +9,7 @@ metadata:
   name: pacedev
   labels:
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
-    {{- include "pace.labels.deployTag" $ | nindent 4 }}
+    {{- include "pace.labels.deployTag" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
