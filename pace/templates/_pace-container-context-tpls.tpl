@@ -6,8 +6,6 @@
     name: pace
 {{- end }}
 {{- if eq .Values.deployContext "azure" -}}
-- secretRef:
-    name: blob-container-sas-url
 {{- end }}
 {{- end -}}
 

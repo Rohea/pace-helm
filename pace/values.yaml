@@ -69,6 +69,9 @@ web:
     limits:
       memory: 800Mi # Upper estimate, subject to change based on empirical values
       cpu: 1
+#  envFrom:
+#    - secretRef:
+#        name: blob-container-sas-url
 #  volumeMounts:
 #    - name: pace-dataplatform-secret-volume
 #      mountPath: /mnt/dataplatform
