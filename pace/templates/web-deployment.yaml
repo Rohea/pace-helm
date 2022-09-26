@@ -40,6 +40,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             {{- include "pace.envFrom" . | nindent 12 }}
+            {{- with .Values.web.envFrom }}{{- toYaml . | nindent 12 }}{{- end }}
           volumeMounts:
             {{- include "pace.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
