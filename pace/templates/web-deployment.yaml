@@ -17,11 +17,11 @@ metadata:
   annotations:
     {{- include "pace.annotations.change-cause" . | nindent 4 }}
 spec:
-  replicas: 1
   selector:
     matchLabels:
       {{- include "pace.labels.component" $componentDict | nindent 6 }}
   progressDeadlineSeconds: 300
+  replicas: 1
   template:
     metadata:
       labels:
