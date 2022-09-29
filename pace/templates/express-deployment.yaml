@@ -34,9 +34,9 @@ spec:
           imagePullPolicy: Always
           env:
             - name: API_URL
-              value: 'https://{{ .Values.ingress.deployUrl }}/api'
+              value: 'https://{{ .Values.ingress.main.deployUrl }}/api'
             - name: ASSET_URL
-              value: 'https://{{ .Values.ingress.deployUrl }}'
+              value: 'https://{{ .Values.ingress.main.deployUrl }}'
             - name: HOSTNAME
               value: '0.0.0.0'
             - name: PORT
