@@ -48,8 +48,9 @@ spec:
           livenessProbe:
             httpGet:
               port: 8080
-              path: /api/public/status/smokecheck
+              path: /api/config
             initialDelaySeconds: 30
+            periodSeconds: 60
           {{- end }}
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
