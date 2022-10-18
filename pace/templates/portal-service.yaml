@@ -1,0 +1,20 @@
+{{- if .Values.entrypoints.portal.enabled }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: portal
+  labels:
+    {{- include "pace.labels.deployTag" $ | nindent 4 }}
+spec:
+  selector:
+    rohea.com/installation: {{ .Values.installationSlug }}
+    rohea.com/app: pace
+    rohea.com/component: portal
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+
+{{- end }}

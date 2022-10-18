@@ -39,6 +39,7 @@ ingress:
     host:
       pathType: Prefix
       path: '/'
+      serviceName: pace
 
   # More ingresses in addition to the main one. The structure of the configuration dict is:
   #   additional:
@@ -168,6 +169,24 @@ imagePullSecrets:
 
 networkPolicies:
   enabled: false
+
+entrypoints:
+  portal:
+    enabled: false
+
+mercure:
+  enabled: false
+  debug: false
+  image:
+    repository: dunglas/mercure
+    tag: v0.14.1
+  env:
+    publisherJwtKey: foobar
+    subscriberJwtKey: loremipsum
+    extraDirectives: |
+      - publish_origins=*
+      - cors_origins=*
+      - anonymous=0
 
 # If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
 # may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to

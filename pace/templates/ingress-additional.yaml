@@ -36,7 +36,7 @@ spec:
             path: "{{ ($definition.host).path | default $.Values.ingress.main.host.path }}"
             backend:
               service:
-                name: pace
+                name: "{{ ($definition.host).serviceName | default $.Values.ingress.main.host.serviceName }}"
                 port:
                   number: 80
 ---
