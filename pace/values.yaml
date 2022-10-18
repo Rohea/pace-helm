@@ -177,3 +177,10 @@ enableKubernetesProbes: true
 availableContexts:
   - microk8s
   - azure
+
+gitlab:
+  gitlabBasedDeploy: false
+  gitlabEnvironment: n/a
+  symfonyEnvironment: n/a
+  kubernetesNamespace: n/a
+  sentryRelease: n/a

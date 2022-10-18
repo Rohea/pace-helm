@@ -1,0 +1,27 @@
+********************************************************************************
+*************************** 🚀 Deploy successful! 🎉 ***************************
+********************************************************************************
+
+Components:
+  📦 Pace web
+       URL:   https://{{ .Values.ingress.main.deployUrl }}
+       Login: https://{{ .Values.ingress.main.deployUrl }}/login
+
+  {{- if .Values.paceDev.enabled }}
+  📦 PaceDev
+       URL:   https://pacedev.{{ .Values.ingress.main.deployUrl }}
+  {{- end }}
+
+{{- if .Values.gitlab.gitlabBasedDeploy }}
+
+--------------------------------------------------------------------------------
+GitLab deploy information:
+  GitLab environment:   {{ .Values.gitlab.gitlabEnvironment }}
+  Symfony environment:  {{ .Values.gitlab.symfonyEnvironment}}
+  Kubernetes namespace: {{ .Values.gitlab.kubernetesNamespace}}
+
+Sentry
+  Release name:        {{ .Values.gitlab.sentryRelease }}
+{{- end }}
+
+********************************************************************************
