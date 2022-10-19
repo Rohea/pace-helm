@@ -186,7 +186,7 @@ mercure:
     extraDirectives: |
       - publish_origins=*
       - cors_origins=*
-      - anonymous=0
+      - anonymous=1
 
 # If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
 # may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to
