@@ -7,9 +7,24 @@ Components:
        URL:   https://{{ .Values.ingress.main.deployUrl }}
        Login: https://{{ .Values.ingress.main.deployUrl }}/login
 
+  {{- if .Values.ingress.additional }}
+
+  📦 Additional ingresses
+  {{- range $name, $definition := .Values.ingress.additional }}
+    📡 {{ $name }}
+         URL: https://{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}
+  {{- end }}
+  {{- end }}
+
   {{- if .Values.paceDev.enabled }}
   📦 PaceDev
        URL:   https://pacedev.{{ .Values.ingress.main.deployUrl }}
+  {{- end }}
+
+  {{- if .Values.mercure.enabled }}
+  📦 Mercure
+       URL:   https://mercure.{{ .Values.ingress.main.deployUrl }}
+       Debug mode: {{ .Values.mercure.debug }}
   {{- end }}
 
 {{- if .Values.gitlab.gitlabBasedDeploy }}
