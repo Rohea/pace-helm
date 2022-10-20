@@ -181,8 +181,8 @@ mercure:
     repository: dunglas/mercure
     tag: v0.14.1
   env:
-    publisherJwtKey: foobar
-    subscriberJwtKey: loremipsum
+    publisherJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
+    subscriberJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
     extraDirectives: |
       - publish_origins=*
       - cors_origins=*
