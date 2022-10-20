@@ -44,9 +44,9 @@ spec:
             - name: SERVER_NAME
               value: ':80'
             - name: MERCURE_PUBLISHER_JWT_KEY
-              value: {{ .Values.mercure.env.publisherJwtKey }}
+              value: {{ .Values.mercure.env.publisherJwtKey | quote }}
             - name: MERCURE_SUBSCRIBER_JWT_KEY
-              value: {{ .Values.mercure.env.subscriberJwtKey }}
+              value: {{ .Values.mercure.env.subscriberJwtKey | quote }}
             - name: MERCURE_EXTRA_DIRECTIVES
               value: {{ toYaml .Values.mercure.env.extraDirectives | indent 14 }}
           resources:
