@@ -6,7 +6,7 @@ kind: NetworkPolicy
 metadata:
   name: postfix-network-policy
   labels:
-    {{- include "pace.labels.deployTag" $ | nindent 4 }}
+    {{- include "pace.labels.deployTag" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:

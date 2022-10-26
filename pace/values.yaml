@@ -39,7 +39,6 @@ ingress:
     host:
       pathType: Prefix
       path: '/'
-      serviceName: pace
 
   # More ingresses in addition to the main one. The structure of the configuration dict is:
   #   additional:
@@ -61,8 +60,8 @@ ingress:
 web:
   # Docker image of php-nginx to deploy
   image:
-    repository: undefined
-    tag: undefined
+    repository: ~
+    tag: ~
   resources:
     requests:
       memory: 256Mi
@@ -170,24 +169,6 @@ imagePullSecrets:
 networkPolicies:
   enabled: false
 
-entrypoints:
-  portal:
-    enabled: false
-
-mercure:
-  enabled: false
-  debug: false
-  image:
-    repository: dunglas/mercure
-    tag: v0.14.1
-  env:
-    publisherJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
-    subscriberJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
-    extraDirectives: |
-      - publish_origins=*
-      - cors_origins=*
-      - anonymous=1
-
 # If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
 # may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to
 # restart the containers automatically.
@@ -196,10 +177,3 @@ enableKubernetesProbes: true
 availableContexts:
   - microk8s
   - azure
-
-gitlab:
-  gitlabBasedDeploy: false
-  gitlabEnvironment: n/a
-  symfonyEnvironment: n/a
-  kubernetesNamespace: n/a
-  sentryRelease: n/a
