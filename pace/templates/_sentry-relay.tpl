@@ -16,10 +16,10 @@
       value: 0.0.0.0
   resources:
     requests:
-      memory: 16Mi
+      memory: 64Mi
       cpu: 5m
     limits:
-      memory: 64Mi
+      memory: 128Mi
       cpu: 50m
 {{- end }}
 {{- end }}
