@@ -51,7 +51,6 @@ spec:
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
-        {{- include "deployment.sentry-relay" . | nindent 8 }}
       volumes:
         {{- include "pace.volumes" . | nindent 8 }}
         {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
