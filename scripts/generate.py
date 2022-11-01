@@ -81,7 +81,7 @@ def main():
     deployTag = datetime.now().timestamp()
 
     print(f'Using deploy tag "{deployTag}" and writing it into file "deploy_tag"')
-    Path('deploy_tag').write_text(str(deployTag))
+    Path('deploy_tag').write_text(str(deployTag), encoding='utf-8')
 
     timestamp = datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
     print(f'Using timestamp "{timestamp}" in the migration job')
@@ -92,7 +92,7 @@ def main():
     ]:
         print_stderr(f'Executing command "{cmd}" and saving as "{target_fn}"')
         output = run_bash(cmd)
-        Path(target_fn).write_text(output)
+        Path(target_fn).write_text(output, encoding='utf-8')
 
         if args.print:
             print(f'Contents of "{target_fn}":')
