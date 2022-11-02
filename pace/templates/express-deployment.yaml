@@ -35,8 +35,6 @@ spec:
           env:
             - name: API_URL
               value: 'https://{{ .Values.ingress.main.deployUrl }}/api'
-            - name: ASSET_URL
-              value: 'https://{{ .Values.ingress.main.deployUrl }}'
             - name: HOSTNAME
               value: '0.0.0.0'
             - name: PORT
