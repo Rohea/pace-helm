@@ -54,27 +54,8 @@ def get_flag_if_file_exists(filename: str) -> Optional[str]:
     return res
 
 
-def generate_deploy_report_file(deployTag: str, flags_str: str, helm_root: Path):
-    cmd = f'helm install --dry-run --generate-name --namespace nonexistent-foobarlorem --set deployTag={deployTag} {flags_str} {helm_root.resolve()}'
-    output = run_bash(cmd)
-    lines = output.splitlines(keepends=False)
-    out_lines = []
-
-    past_notes = False
-    for line in lines:
-        if line == 'NOTES:':
-            past_notes = True
-            continue
-
-        if past_notes:
-            out_lines.append(line)
-
-    Path('deploy_report.txt').write_text('\n'.join(out_lines) + '\n', encoding='utf-8')
-
-
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description='Generate Pace Kubernetes resource manifests with Helm. The helm binary must be available on PATH. The script creates the resource files in the current directory, their names are printed in stderr.')
+    parser = argparse.ArgumentParser(description='Generate Pace Kubernetes resource manifests with Helm. The helm binary must be available on PATH. The script creates the resource files in the current directory, their names are printed in stderr.')
     parser.add_argument('--config-file', '-c', action='append', help='Include a Helm values file if it exists. Is silently ignored if the file does not exist. May be provided multiple times.')
     parser.add_argument('--print', action='store_true', help='In addition to writing the files, also print out the YAML contents and info messages on stdout.')
     parser.add_argument('--pace-version', help='Override the Pace version. The value of this option will be used as the Docker image tag of the web/messenger/scheduler etc. components.')
@@ -117,8 +98,6 @@ def main():
             print(f'Contents of "{target_fn}":')
             print(output)
             print(f'<end of contents of "{target_fn}">')
-
-    generate_deploy_report_file(str(deployTag), flags_str, helm_root)
 
 
 if __name__ == '__main__':
