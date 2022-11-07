@@ -204,7 +204,8 @@ kubectl -n "$NAMESPACE" apply -f "$pace_stack_fn"
 
 # TODO this is here instead of the proper waiting through kubectl API due to a GitLab bug: https://gitlab.com/gitlab-org/gitlab/-/issues/343148
 #      when upgraded and bug is fixed, remove the sleep and uncomment the waiting above
-sleep 60
+echo "Waiting 120 seconds until the deployment rolls out..."
+sleep 120
 
 #
 # Delete old/deprecated resources
