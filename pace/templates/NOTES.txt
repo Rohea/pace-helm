@@ -12,7 +12,7 @@ Components:
   📦 Additional ingresses
   {{- range $name, $definition := .Values.ingress.additional }}
     📡 {{ $name }}
-         URL: https://{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}
+         URL: https://{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}{{ ($definition.host).path | default "/" }}
   {{- end }}
   {{- end }}
 
@@ -23,8 +23,8 @@ Components:
 
   {{- if .Values.mercure.enabled }}
   📦 Mercure
-       URL:   https://mercure.{{ .Values.ingress.main.deployUrl }}
-       Debug mode: {{ .Values.mercure.debug }}
+       Pub/Sub URL:  https://{{ .Values.ingress.main.deployUrl }}/.well-known/mercure
+       Web UI:       {{ if .Values.mercure.debug }}https://{{ .Values.ingress.main.deployUrl }}/.well-known/mercure/ui/{{ else }}Not available (debug mode disabled){{ end }}
   {{- end }}
 
 {{- if .Values.gitlab.gitlabBasedDeploy }}

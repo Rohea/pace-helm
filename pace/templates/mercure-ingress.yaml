@@ -13,15 +13,15 @@ spec:
   {{- if .Values.ingress.main.tls.enabled }}
   tls:
     - hosts:
-      - "mercure.{{- required "Configuration key 'ingress.main.deployUrl' is required" .Values.ingress.main.deployUrl }}"
-      secretName: letsencrypt-tls-pace-mercure
+      - "{{- required "Configuration key 'ingress.main.deployUrl' is required" .Values.ingress.main.deployUrl }}"
+      secretName: {{ .Values.ingress.main.tls.secretName }}
   {{- end }}
   rules:
-    - host: mercure.{{ .Values.ingress.main.deployUrl }}
+    - host: {{ .Values.ingress.main.deployUrl }}
       http:
         paths:
           - pathType: Prefix
-            path: "/"
+            path: "/.well-known/mercure"
             backend:
               service:
                 name: mercure
