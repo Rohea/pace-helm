@@ -12,7 +12,7 @@ Components:
   📦 Additional ingresses
   {{- range $name, $definition := .Values.ingress.additional }}
     📡 {{ $name }}
-         URL: https://{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}
+         URL: https://{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}{{ ($definition.host).path | default "/" }}
   {{- end }}
   {{- end }}
 
