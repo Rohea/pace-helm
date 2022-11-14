@@ -1,11 +1,12 @@
-import yaml
-from pathlib import Path
 import argparse
-from typing import *
 import re
-import sys
 import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import *
+
+import yaml
 
 
 def print_stderr(msg):
@@ -72,7 +73,7 @@ def generate_deploy_info_files(deployTag: str, flags_str: str, helm_root: Path):
                 inside_section = True
                 continue
 
-            if re.match(r'[A-Z]+:', line):
+            if inside_section and re.match(r'[A-Z]+:', line):
                 break
 
             if inside_section:
