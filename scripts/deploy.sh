@@ -36,6 +36,16 @@ assert_file_exists() {
   fi
 }
 
+ensure_kubectl_context_correct() {
+  if [[ ${REQUIRED_KUBECTL_CONTEXT:-undef} != undef ]]; then
+    current_ctx=$(kubectl config current-context)
+    if [[ $current_ctx != REQUIRED_KUBECTL_CONTEXT ]]; then
+      echo "This deployment specifies a required kubectl context \"${REQUIRED_KUBECTL_CONTEXT}\" (defined in Helm values under .meta.requireKubectlContext), but current context is \"${current_ctx}\". Aborting the deploy."
+      exit 1
+    fi
+  fi
+}
+
 # Import functions
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "$DIR/common.sh"
@@ -83,6 +93,9 @@ NAMESPACE="$2"
 DATETIME=$(date +'%Y-%m-%d-%H-%M-%S')
 KEEP_LAST_X_MIGRATION_JOBS=3
 rollout_wait_timeout="8m"
+
+source .meta_deploy_directives
+ensure_kubectl_context_correct
 
 echo "Deploying app '${APP_NAME}' into namespace '${NAMESPACE}'"
 
