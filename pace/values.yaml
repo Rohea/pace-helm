@@ -203,3 +203,9 @@ gitlab:
   symfonyEnvironment: n/a
   kubernetesNamespace: n/a
   sentryRelease: n/a
+
+_meta:
+  # Require the given kubectl context name to be active (in 'kubectl config use-context xxxxx'). This is useful in
+  # manual deployments (Business Finland) to ensure the deployment is not accidentaly ran against an unexpected context.
+  # If not present or empty, no check for the context is performed.
+  requiredKubectlContext:
