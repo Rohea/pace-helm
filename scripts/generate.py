@@ -1,9 +1,12 @@
-from pathlib import Path
 import argparse
-from typing import *
-import sys
+import re
 import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import *
+
+import yaml
 
 
 def print_stderr(msg):
@@ -54,22 +57,50 @@ def get_flag_if_file_exists(filename: str) -> Optional[str]:
     return res
 
 
-def generate_deploy_report_file(deployTag: str, flags_str: str, helm_root: Path):
-    cmd = f'helm install --dry-run --generate-name --namespace nonexistent-foobarlorem --set deployTag={deployTag} {flags_str} {helm_root.resolve()}'
+def generate_deploy_info_files(deployTag: str, flags_str: str, helm_root: Path):
+    def _parse_section_lines(section_heading: str, lines: List[str]) -> List[str]:
+        """
+        Parse the plain text section from 'helm install' output with the given heading.
+
+        :param section_heading: The heading of the section, without trailing colon. I.e. for 'NOTES:' section, the parameter should be 'NOTES'.
+        :param lines: all the lines written out by 'helm install --debug'
+        :return: the lines belonging to the section
+        """
+        result = []
+        inside_section = False
+        for line in lines:
+            if line == f'{section_heading}:':
+                inside_section = True
+                continue
+
+            if inside_section and re.match(r'[A-Z]+:', line):
+                break
+
+            if inside_section:
+                result.append(line)
+
+        return result
+
+    cmd = f'helm install --debug --dry-run --generate-name --namespace nonexistent-foobarlorem --set deployTag={deployTag} {flags_str} {helm_root.resolve()}'
     output = run_bash(cmd)
     lines = output.splitlines(keepends=False)
-    out_lines = []
 
-    past_notes = False
-    for line in lines:
-        if line == 'NOTES:':
-            past_notes = True
-            continue
+    deploy_report = _parse_section_lines('NOTES', lines)
+    Path('deploy_report.txt').write_text('\n'.join(deploy_report) + '\n', encoding='utf-8')
 
-        if past_notes:
-            out_lines.append(line)
+    merged_values_str_list = _parse_section_lines('COMPUTED VALUES', lines)
+    merged_values = yaml.safe_load('\n'.join(merged_values_str_list))
 
-    Path('deploy_report.txt').write_text('\n'.join(out_lines) + '\n', encoding='utf-8')
+    meta_values = {}
+    if '_meta' in merged_values:
+        meta_values = merged_values['_meta']
+
+    meta_out_lines = []
+    for k, v in meta_values.items():
+        if k == 'requiredKubectlContext' and v is not None:
+            meta_out_lines.append(f'REQUIRED_KUBECTL_CONTEXT={v}')
+
+    Path('.meta_deploy_directives').write_text('\n'.join(meta_out_lines) + '\n', encoding='utf-8')
 
 
 def parse_args():
@@ -118,7 +149,7 @@ def main():
             print(output)
             print(f'<end of contents of "{target_fn}">')
 
-    generate_deploy_report_file(str(deployTag), flags_str, helm_root)
+    generate_deploy_info_files(str(deployTag), flags_str, helm_root)
 
 
 if __name__ == '__main__':
