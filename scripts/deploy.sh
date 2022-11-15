@@ -39,7 +39,7 @@ assert_file_exists() {
 ensure_kubectl_context_correct() {
   if [[ ${REQUIRED_KUBECTL_CONTEXT:-undef} != undef ]]; then
     current_ctx=$(kubectl config current-context)
-    if [[ $current_ctx != REQUIRED_KUBECTL_CONTEXT ]]; then
+    if [[ $current_ctx != $REQUIRED_KUBECTL_CONTEXT ]]; then
       echo "This deployment specifies a required kubectl context \"${REQUIRED_KUBECTL_CONTEXT}\" (defined in Helm values under .meta.requireKubectlContext), but current context is \"${current_ctx}\". Aborting the deploy."
       exit 1
     fi
