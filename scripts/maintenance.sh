@@ -8,15 +8,28 @@ set -euo pipefail
 # deploy.
 #
 
-if [[ $# != 1 ]]; then
-  echo "Expected 1 arguments - NAMESPACE, got $#"
+usage() {
+  echo "Usage: maintenance.sh enable|disable NAMESPACE"
   exit 1
+}
+
+if [[ $# != 2 ]]; then
+  echo "Expected 2 arguments, got $#"
+  usage
 fi
 
-NAMESPACE="$1"
+OP="$1"
+NAMESPACE="$2"
 
 # Import functions
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "$DIR/common.sh"
 
-enable_maintenance "$NAMESPACE"
+if [[ $OP == 'enable' ]]; then
+  maintenance_enable "$NAMESPACE"
+elif [[ $OP == 'disable' ]]; then
+  maintenance_disable "$NAMESPACE"
+else
+  echo "Unknown operation: \"${OP}\""
+  usage
+fi

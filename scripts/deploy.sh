@@ -175,7 +175,7 @@ if ! kubectl describe ns/"$NAMESPACE" >/dev/null 2>&1; then
   kubectl create ns "$NAMESPACE"
 fi
 
-enable_maintenance "$NAMESPACE" || true
+maintenance_enable "$NAMESPACE" || true
 
 #
 # Clearing out all failed pods
