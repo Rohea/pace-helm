@@ -46,6 +46,18 @@ ensure_kubectl_context_correct() {
   fi
 }
 
+# Interactive confirmation prompt for the user
+block_until_user_confirmed() {
+  msg="$1"
+  _answer="init"
+  echo "* * * * * * * * * *"
+  while [[ $_answer != "y" ]]; do
+    echo "  $msg"
+    printf "  Type in 'y' and press Enter when ready to continue: "
+    read -r _answer
+  done
+}
+
 # Import functions
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "$DIR/common.sh"
@@ -175,6 +187,10 @@ if [[ -n "$failed_pods" ]]; then
   echo "$failed_pods" | awk '{ print $1 }' | xargs kubectl -n "$NAMESPACE" delete pod
 else
   echo "No failed pods in namespace $NAMESPACE, not deleting any pods."
+fi
+
+if [[ ${STOP_ON_DEPLOY_FOR_DB_BACKUP:-false} == true ]]; then
+  block_until_user_confirmed "Deployment process paused. Now is the time to make a database backup."
 fi
 
 #

@@ -209,3 +209,7 @@ _meta:
   # manual deployments (Business Finland) to ensure the deployment is not accidentaly ran against an unexpected context.
   # If not present or empty, no check for the context is performed.
   requiredKubectlContext:
+
+  # If true, the deployment process will stop and wait for user interaction in place where a database backup should
+  # be made. Useful for cases where fully automatic database backup is not implemented.
+  stopOnDeployForDbBackup: false
