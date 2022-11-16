@@ -99,6 +99,8 @@ def generate_deploy_info_files(deployTag: str, flags_str: str, helm_root: Path):
     for k, v in meta_values.items():
         if k == 'requiredKubectlContext' and v is not None:
             meta_out_lines.append(f'REQUIRED_KUBECTL_CONTEXT={v}')
+        if k == 'stopOnDeployForDbBackup' and v == True:
+            meta_out_lines.append('STOP_ON_DEPLOY_FOR_DB_BACKUP=true')
 
     Path('.meta_deploy_directives').write_text('\n'.join(meta_out_lines) + '\n', encoding='utf-8')
 
