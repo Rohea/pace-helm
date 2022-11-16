@@ -47,9 +47,11 @@ wait_for_rollout() {
   while true; do
     all_ok=1
     for deploy in $deployments; do
-      status=$(kubectl -n "$_ns" rollout status deploy/${deploy} --watch=false)
-      if [[ $status == *"Waiting for deployment"* ]]; then
-        echo "- $deploy - not rolled out"
+      unavailable_replicas_kubectl=$(kubectl -n "$_ns" get deploy ${deploy} -o jsonpath='{.status.unavailableReplicas}')
+      unavailable_replicas=${unavailable_replicas_kubectl:-0}
+
+      if [[ $unavailable_replicas != 0 ]]; then
+        echo " - $deploy: ${unavailable_replicas} pods unavailable ($(date +'%H:%M:%S'))"
         all_ok=0
       fi
     done
@@ -173,4 +175,7 @@ maintenance_disable() {
     kubectl -n "$_ns" patch ingresses.v1.networking.k8s.io "$ingress_name" --type=json \
             -p='[{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value":"'"$orig_service_name"'"}]'
   done
+
+  # scale down maintenance page because it is no longer needed
+  kubectl -n "$_ns" scale deployment/maintenance-page --replicas=0
 }
