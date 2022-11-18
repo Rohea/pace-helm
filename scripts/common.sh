@@ -41,12 +41,17 @@ wait_for_zero_scale() {
 
 wait_for_rollout() {
   _ns="$1"
+  shift
+  _deployments=("$@")
 
-  deployments=$(get_deployments_to_scale "$_ns")
-  echo "Checking whether all deployments have been scaled up"
+  echo "Checking whether all deployments have been scaled up:"
+  for deploy in "${_deployments[@]}"; do
+    echo "- $deploy"
+  done
+
   while true; do
     all_ok=1
-    for deploy in $deployments; do
+    for deploy in "${_deployments[@]}"; do
       unavailable_replicas_kubectl=$(kubectl -n "$_ns" get deploy ${deploy} -o jsonpath='{.status.unavailableReplicas}')
       unavailable_replicas=${unavailable_replicas_kubectl:-0}
 
@@ -73,6 +78,55 @@ get_deployments_to_scale() {
   kubectl -n "$1" get deployment -l rohea.com/stop-during-deploy='true' --no-headers -o custom-columns=":metadata.name"
 }
 
+patch_ingresses_to_maintenance_page() {
+  _ns="$1"
+  ingresses_names=$(get_pace_ingresses "$_ns")
+  if [[ -z "$ingresses_names" ]]; then
+    echo "No applicable Ingress resources found to patch. Scaling down the deployment but there will not be a nice maintenance frontpage."
+  else
+    echo "Patching the following Ingress resources to point to the maintenance page:"
+    for ing in $ingresses_names; do
+      echo "  - '$ing'"
+    done
+  fi
+
+  for ingress_name in $ingresses_names; do
+    echo "Patching ingress: '$ingress_name'"
+    orig_service_name=$(kubectl -n "$_ns" get ing "$ingress_name" -o jsonpath='{.spec.rules[0].http.paths[0].backend.service.name}')
+    echo "  original svc name: \"$orig_service_name\""
+    if [[ $orig_service_name != "maintenance-page" ]]; then
+      kubectl -n "$_ns" annotate --overwrite ing "$ingress_name" "rohea.com/original-svc=$orig_service_name"
+    fi
+    kubectl -n "$_ns" patch ingresses.v1.networking.k8s.io "$ingress_name" --type=json \
+            -p='[{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value":"maintenance-page"}]'
+  done
+
+  echo "Ingress resources patched"
+}
+
+patch_ingresses_to_regular_services() {
+  _ns="$1"
+
+  echo "Patching the following Ingress resources to point their original services:"
+  for ing in $ingresses_names; do
+    echo "  - '$ing'"
+  done
+
+  # Patch ingresses to point to their original services. The original service name is
+  # stored in the annotation if the Ingress resource.
+  for ingress_name in $ingresses_names; do
+    echo "Patching ingress: '$ingress_name'"
+    orig_service_name=$(kubectl -n "$_ns" get ing "$ingress_name" -o jsonpath='{.metadata.annotations.rohea\.com/original-svc}')
+    if [[ -z "$orig_service_name" ]]; then
+      echo "Ingress \"$ingress_name\" does not have the \"rohea.com/original-svc\" annotation. Cannot disable maintenance."
+      exit 1
+    fi
+    echo "  restoring original svc name: \"$orig_service_name\""
+    kubectl -n "$_ns" patch ingresses.v1.networking.k8s.io "$ingress_name" --type=json \
+            -p='[{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value":"'"$orig_service_name"'"}]'
+  done
+}
+
 #
 # Enable maintenance mode for a k8s Pace deployment
 #
@@ -89,30 +143,11 @@ maintenance_enable() {
 
   echo "Deployment 'maintenance-page' found in namespace '$_ns'"
 
-  ingresses_names=$(get_pace_ingresses "$_ns")
-  if [[ -z "$ingresses_names" ]]; then
-    echo "No applicable Ingress resources found to patch. Scaling down the deployment but there will not be a nice maintenance frontpage."
-  else
-    echo "Patching the following Ingress resources to point to the maintenance page:"
-    for ing in $ingresses_names; do
-      echo "  - '$ing'"
-    done
-  fi
-
   # Scale up maintenance page, redirect ingresses to it
   kubectl -n "$_ns" scale deployment/maintenance-page --replicas=1
-  sleep 30
+  wait_for_rollout "$_ns" maintenance-page
 
-  for ingress_name in $ingresses_names; do
-    echo "Patching ingress: '$ingress_name'"
-    orig_service_name=$(kubectl -n "$_ns" get ing "$ingress_name" -o jsonpath='{.spec.rules[0].http.paths[0].backend.service.name}')
-    echo "  original svc name: \"$orig_service_name\""
-    kubectl -n "$_ns" annotate --overwrite ing "$ingress_name" "rohea.com/original-svc=$orig_service_name"
-    kubectl -n "$_ns" patch ingresses.v1.networking.k8s.io "$ingress_name" --type=json \
-            -p='[{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value":"maintenance-page"}]'
-  done
-
-  echo "Ingress resources patched"
+  patch_ingresses_to_maintenance_page "$_ns"
 
   echo "Will scale down the following deployments:"
   deployments_to_scale_down=$(get_deployments_to_scale "$_ns")
@@ -155,26 +190,13 @@ maintenance_disable() {
   done
 
   sleep 5
-  wait_for_rollout "$_ns"
 
-  echo "Patching the following Ingress resources to point their original services:"
-  for ing in $ingresses_names; do
-    echo "  - '$ing'"
-  done
+  # Gather deployments that need to be waited for, convert the list to array and pass to the wait function
+  _d=$(get_deployments_to_scale "$_ns")
+  IFS=$'\n' arr=(${_d})
+  wait_for_rollout "$_ns" "${arr[@]}"
 
-  # Patch ingresses to point to their original services. The original service name is
-  # stored in the annotation if the Ingress resource.
-  for ingress_name in $ingresses_names; do
-    echo "Patching ingress: '$ingress_name'"
-    orig_service_name=$(kubectl -n "$_ns" get ing "$ingress_name" -o jsonpath='{.metadata.annotations.rohea\.com/original-svc}')
-    if [[ -z "$orig_service_name" ]]; then
-      echo "Ingress \"$ingress_name\" does not have the \"rohea.com/original-svc\" annotation. Cannot disable maintenance."
-      exit 1
-    fi
-    echo "  restoring original svc name: \"$orig_service_name\""
-    kubectl -n "$_ns" patch ingresses.v1.networking.k8s.io "$ingress_name" --type=json \
-            -p='[{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value":"'"$orig_service_name"'"}]'
-  done
+  patch_ingresses_to_regular_services "$_ns"
 
   # scale down maintenance page because it is no longer needed
   kubectl -n "$_ns" scale deployment/maintenance-page --replicas=0
