@@ -134,14 +134,12 @@ function wait_for_migration_job_finish()
   echo "The pod associated with the job is: \"$_pod_name\""
 
   while true; do
-    completed_condition=$(kubectl -n "$_ns" get job "$_job_name" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}')
-    if [[ $completed_condition == "True" ]]; then
+    if kubectl -n "$_ns" wait --for=condition=complete --timeout=0 job "$_job_name" 2>/dev/null; then
       job_result=0
       break
     fi
 
-    failed_condition=$(kubectl -n "$_ns" get job "$_job_name" -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}')
-    if [[ $failed_condition == "True" ]]; then
+    if kubectl -n "$_ns" wait --for=condition=failed --timeout=0 job "$_job_name" 2>/dev/null; then
       job_result=1
       break
     fi
@@ -222,16 +220,21 @@ fi
 echo "Deploying new code..."
 kubectl -n "$NAMESPACE" apply -f "$pace_stack_fn"
 
-patch_ingresses_to_maintenance_page "$NAMESPACE"
-
 #
-# Wait for all the deployment objects to start up
+# Wait for all the deployment objects to either start up or crash
 #
-_d=$(get_deployments_to_scale "$_ns")
-IFS=$'\n' arr=(${_d})
-wait_for_rollout "$NAMESPACE" "${arr[@]}"
+# echo "I will now wait for all the deployments in namespace $NAMESPACE to either succeed or fail."
+# echo "I will wait at most '$rollout_wait_timeout'. But it is highly recommended that every deployment has a 'spec.progressDeadlineSeconds' defined with a reasonably small value after which the deployment will be considered failed."
+#
+# for deploy_name in $(kubectl -n "$NAMESPACE" get deploy --output name); do
+#   echo "Waiting for rollout status of ${deploy_name}..."
+#   kubectl -n "$NAMESPACE" rollout status "$deploy_name" --timeout "$rollout_wait_timeout"
+# done
 
-patch_ingresses_to_regular_services "$NAMESPACE"
+# TODO this is here instead of the proper waiting through kubectl API due to a GitLab bug: https://gitlab.com/gitlab-org/gitlab/-/issues/343148
+#      when upgraded and bug is fixed, remove the sleep and uncomment the waiting above
+echo "Waiting 120 seconds until the deployment rolls out..."
+sleep 120
 
 #
 # Delete old/deprecated resources
