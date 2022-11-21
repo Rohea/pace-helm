@@ -39,7 +39,6 @@ ingress:
     host:
       pathType: Prefix
       path: '/'
-      serviceName: pace
 
   # More ingresses in addition to the main one. The structure of the configuration dict is:
   #   additional:
@@ -61,8 +60,8 @@ ingress:
 web:
   # Docker image of php-nginx to deploy
   image:
-    repository: undefined
-    tag: undefined
+    repository: ~
+    tag: ~
   resources:
     requests:
       memory: 256Mi
@@ -170,24 +169,6 @@ imagePullSecrets:
 networkPolicies:
   enabled: false
 
-entrypoints:
-  portal:
-    enabled: false
-
-mercure:
-  enabled: false
-  debug: false
-  image:
-    repository: dunglas/mercure
-    tag: v0.14.1
-  env:
-    publisherJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
-    subscriberJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
-    extraDirectives: |
-      - publish_origins=*
-      - cors_origins=*
-      - anonymous=1
-
 # If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
 # may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to
 # restart the containers automatically.
@@ -196,20 +177,3 @@ enableKubernetesProbes: true
 availableContexts:
   - microk8s
   - azure
-
-gitlab:
-  gitlabBasedDeploy: false
-  gitlabEnvironment: n/a
-  symfonyEnvironment: n/a
-  kubernetesNamespace: n/a
-  sentryRelease: n/a
-
-_meta:
-  # Require the given kubectl context name to be active (in 'kubectl config use-context xxxxx'). This is useful in
-  # manual deployments (Business Finland) to ensure the deployment is not accidentaly ran against an unexpected context.
-  # If not present or empty, no check for the context is performed.
-  requiredKubectlContext:
-
-  # If true, the deployment process will stop and wait for user interaction in place where a database backup should
-  # be made. Useful for cases where fully automatic database backup is not implemented.
-  stopOnDeployForDbBackup: false

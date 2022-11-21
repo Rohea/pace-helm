@@ -36,28 +36,6 @@ assert_file_exists() {
   fi
 }
 
-ensure_kubectl_context_correct() {
-  if [[ ${REQUIRED_KUBECTL_CONTEXT:-undef} != undef ]]; then
-    current_ctx=$(kubectl config current-context)
-    if [[ $current_ctx != $REQUIRED_KUBECTL_CONTEXT ]]; then
-      echo "This deployment specifies a required kubectl context \"${REQUIRED_KUBECTL_CONTEXT}\" (defined in Helm values under .meta.requireKubectlContext), but current context is \"${current_ctx}\". Aborting the deploy."
-      exit 1
-    fi
-  fi
-}
-
-# Interactive confirmation prompt for the user
-block_until_user_confirmed() {
-  msg="$1"
-  _answer="init"
-  echo "* * * * * * * * * *"
-  while [[ $_answer != "y" ]]; do
-    echo "  $msg"
-    printf "  Type in 'y' and press Enter when ready to continue: "
-    read -r _answer
-  done
-}
-
 # Import functions
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "$DIR/common.sh"
@@ -106,9 +84,6 @@ DATETIME=$(date +'%Y-%m-%d-%H-%M-%S')
 KEEP_LAST_X_MIGRATION_JOBS=3
 rollout_wait_timeout="8m"
 
-source .meta_deploy_directives
-ensure_kubectl_context_correct
-
 echo "Deploying app '${APP_NAME}' into namespace '${NAMESPACE}'"
 
 #
@@ -134,14 +109,12 @@ function wait_for_migration_job_finish()
   echo "The pod associated with the job is: \"$_pod_name\""
 
   while true; do
-    completed_condition=$(kubectl -n "$_ns" get job "$_job_name" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}')
-    if [[ $completed_condition == "True" ]]; then
+    if kubectl -n "$_ns" wait --for=condition=complete --timeout=0 job "$_job_name" 2>/dev/null; then
       job_result=0
       break
     fi
 
-    failed_condition=$(kubectl -n "$_ns" get job "$_job_name" -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}')
-    if [[ $failed_condition == "True" ]]; then
+    if kubectl -n "$_ns" wait --for=condition=failed --timeout=0 job "$_job_name" 2>/dev/null; then
       job_result=1
       break
     fi
@@ -177,7 +150,7 @@ if ! kubectl describe ns/"$NAMESPACE" >/dev/null 2>&1; then
   kubectl create ns "$NAMESPACE"
 fi
 
-maintenance_enable "$NAMESPACE" || true
+enable_maintenance "$NAMESPACE" || true
 
 #
 # Clearing out all failed pods
@@ -189,10 +162,6 @@ if [[ -n "$failed_pods" ]]; then
   echo "$failed_pods" | awk '{ print $1 }' | xargs kubectl -n "$NAMESPACE" delete pod
 else
   echo "No failed pods in namespace $NAMESPACE, not deleting any pods."
-fi
-
-if [[ ${STOP_ON_DEPLOY_FOR_DB_BACKUP:-false} == true ]]; then
-  block_until_user_confirmed "Deployment process paused. Now is the time to make a database backup."
 fi
 
 #
@@ -222,16 +191,20 @@ fi
 echo "Deploying new code..."
 kubectl -n "$NAMESPACE" apply -f "$pace_stack_fn"
 
-patch_ingresses_to_maintenance_page "$NAMESPACE"
-
 #
-# Wait for all the deployment objects to start up
+# Wait for all the deployment objects to either start up or crash
 #
-_d=$(get_deployments_to_scale "$_ns")
-IFS=$'\n' arr=(${_d})
-wait_for_rollout "$NAMESPACE" "${arr[@]}"
+# echo "I will now wait for all the deployments in namespace $NAMESPACE to either succeed or fail."
+# echo "I will wait at most '$rollout_wait_timeout'. But it is highly recommended that every deployment has a 'spec.progressDeadlineSeconds' defined with a reasonably small value after which the deployment will be considered failed."
+#
+# for deploy_name in $(kubectl -n "$NAMESPACE" get deploy --output name); do
+#   echo "Waiting for rollout status of ${deploy_name}..."
+#   kubectl -n "$NAMESPACE" rollout status "$deploy_name" --timeout "$rollout_wait_timeout"
+# done
 
-patch_ingresses_to_regular_services "$NAMESPACE"
+# TODO this is here instead of the proper waiting through kubectl API due to a GitLab bug: https://gitlab.com/gitlab-org/gitlab/-/issues/343148
+#      when upgraded and bug is fixed, remove the sleep and uncomment the waiting above
+sleep 60
 
 #
 # Delete old/deprecated resources

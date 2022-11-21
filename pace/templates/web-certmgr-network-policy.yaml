@@ -5,7 +5,7 @@ kind: NetworkPolicy
 metadata:
   name: web-certmgr-solver-network-policy
   labels:
-    {{- include "pace.labels.deployTag" $ | nindent 4 }}
+    {{- include "pace.labels.deployTag" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:

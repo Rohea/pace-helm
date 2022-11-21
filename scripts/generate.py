@@ -1,12 +1,9 @@
-import argparse
-import re
-import subprocess
-import sys
-from datetime import datetime
 from pathlib import Path
+import argparse
 from typing import *
-
-import yaml
+import sys
+import subprocess
+from datetime import datetime
 
 
 def print_stderr(msg):
@@ -57,57 +54,8 @@ def get_flag_if_file_exists(filename: str) -> Optional[str]:
     return res
 
 
-def generate_deploy_info_files(deployTag: str, flags_str: str, helm_root: Path):
-    def _parse_section_lines(section_heading: str, lines: List[str]) -> List[str]:
-        """
-        Parse the plain text section from 'helm install' output with the given heading.
-
-        :param section_heading: The heading of the section, without trailing colon. I.e. for 'NOTES:' section, the parameter should be 'NOTES'.
-        :param lines: all the lines written out by 'helm install --debug'
-        :return: the lines belonging to the section
-        """
-        result = []
-        inside_section = False
-        for line in lines:
-            if line == f'{section_heading}:':
-                inside_section = True
-                continue
-
-            if inside_section and re.match(r'[A-Z]+:', line):
-                break
-
-            if inside_section:
-                result.append(line)
-
-        return result
-
-    cmd = f'helm install --debug --dry-run --generate-name --namespace nonexistent-foobarlorem --set deployTag={deployTag} {flags_str} {helm_root.resolve()}'
-    output = run_bash(cmd)
-    lines = output.splitlines(keepends=False)
-
-    deploy_report = _parse_section_lines('NOTES', lines)
-    Path('deploy_report.txt').write_text('\n'.join(deploy_report) + '\n', encoding='utf-8')
-
-    merged_values_str_list = _parse_section_lines('COMPUTED VALUES', lines)
-    merged_values = yaml.safe_load('\n'.join(merged_values_str_list))
-
-    meta_values = {}
-    if '_meta' in merged_values:
-        meta_values = merged_values['_meta']
-
-    meta_out_lines = []
-    for k, v in meta_values.items():
-        if k == 'requiredKubectlContext' and v is not None:
-            meta_out_lines.append(f'REQUIRED_KUBECTL_CONTEXT={v}')
-        if k == 'stopOnDeployForDbBackup' and v == True:
-            meta_out_lines.append('STOP_ON_DEPLOY_FOR_DB_BACKUP=true')
-
-    Path('.meta_deploy_directives').write_text('\n'.join(meta_out_lines) + '\n', encoding='utf-8')
-
-
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description='Generate Pace Kubernetes resource manifests with Helm. The helm binary must be available on PATH. The script creates the resource files in the current directory, their names are printed in stderr.')
+    parser = argparse.ArgumentParser(description='Generate Pace Kubernetes resource manifests with Helm. The helm binary must be available on PATH. The script creates the resource files in the current directory, their names are printed in stderr.')
     parser.add_argument('--config-file', '-c', action='append', help='Include a Helm values file if it exists. Is silently ignored if the file does not exist. May be provided multiple times.')
     parser.add_argument('--print', action='store_true', help='In addition to writing the files, also print out the YAML contents and info messages on stdout.')
     parser.add_argument('--pace-version', help='Override the Pace version. The value of this option will be used as the Docker image tag of the web/messenger/scheduler etc. components.')
@@ -150,8 +98,6 @@ def main():
             print(f'Contents of "{target_fn}":')
             print(output)
             print(f'<end of contents of "{target_fn}">')
-
-    generate_deploy_info_files(str(deployTag), flags_str, helm_root)
 
 
 if __name__ == '__main__':
