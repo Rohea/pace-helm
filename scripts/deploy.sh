@@ -177,7 +177,7 @@ if ! kubectl describe ns/"$NAMESPACE" >/dev/null 2>&1; then
   kubectl create ns "$NAMESPACE"
 fi
 
-maintenance_enable "$NAMESPACE" || true
+maintenance_enable "$NAMESPACE"
 
 #
 # Clearing out all failed pods
@@ -204,7 +204,7 @@ else
   echo "Deploying the database migration job..."
 
   kubectl -n "$NAMESPACE" apply -f "${migrations_fn}"
-  migration_job_name=$(kubectl -n "$NAMESPACE" get -f "${migrations_fn}" --no-headers -o custom-columns=":metadata.name")
+  migration_job_name=$(kubectl -n "$NAMESPACE" get -f "${migrations_fn}" --no-headers -o custom-columns=":metadata.name" -l 'rohea.com/component=pace-database-migrations')
   echo "  ... with name \"$migration_job_name\""
   wait_for_migration_job_finish "$NAMESPACE" "$migration_job_name"
 

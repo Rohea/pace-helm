@@ -1,0 +1,58 @@
+{{- if .Values.renderNotes }}
+{{- /*
+  This is a replacement for the "NOTES.txt" standard Helm file. The reason being that in Helm 3 it is not possible
+  to render the NOTES file with 'helm template': https://github.com/helm/helm/issues/6901
+
+  For that reason this template may be rendered as a YAML file which can then be parsed and printed out where needed.
+*/}}
+deployReport: |
+  ********************************************************************************
+  *************************** 🚀 Deploy successful! 🎉 ***************************
+  ********************************************************************************
+
+  Components:
+    📦 Pace web
+         URL:   https://{{ .Values.ingress.main.deployUrl }}
+         Login: https://{{ .Values.ingress.main.deployUrl }}/login
+
+    {{- if .Values.ingress.additional }}
+
+    📦 Additional ingresses
+    {{- range $name, $definition := .Values.ingress.additional }}
+      📡 {{ $name }}
+           URL: https://{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}{{ ($definition.host).path | default "/" }}
+    {{- end }}
+    {{- end }}
+
+    {{- if .Values.paceDev.enabled }}
+    📦 PaceDev
+         URL:   https://pacedev.{{ .Values.ingress.main.deployUrl }}
+    {{- end }}
+
+    {{- if .Values.mercure.enabled }}
+    📦 Mercure
+         Pub/Sub URL:  https://{{ .Values.ingress.main.deployUrl }}/.well-known/mercure
+         Web UI:       {{ if .Values.mercure.debug }}https://{{ .Values.ingress.main.deployUrl }}/.well-known/mercure/ui/{{ else }}Not available (debug mode disabled){{ end }}
+    {{- end }}
+
+  {{- if .Values.gitlab.gitlabBasedDeploy }}
+
+  --------------------------------------------------------------------------------
+  GitLab deploy information:
+    GitLab environment:   {{ .Values.gitlab.gitlabEnvironment }}
+    Symfony environment:  {{ .Values.gitlab.symfonyEnvironment}}
+    Kubernetes namespace: {{ .Values.gitlab.kubernetesNamespace}}
+
+  Sentry
+    Release name:        {{ .Values.gitlab.sentryRelease }}
+  {{- end }}
+
+  ********************************************************************************
+
+{{- /*
+This value will contain meta-variables that are consumed by scripts later in the deploy.
+*/}}
+metaValues:
+  {{- toYaml .Values._meta | nindent 2 }}
+
+{{- end }}

@@ -30,6 +30,7 @@ spec:
         pace.rohea.com/allow-network-db: "true"
     spec:
       automountServiceAccountToken: false
+      serviceAccountName: {{ .Values.web.serviceAccountName }}
       containers:
         - name: php-nginx
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}

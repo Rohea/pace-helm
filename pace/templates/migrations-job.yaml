@@ -19,6 +19,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       restartPolicy: Never
+      serviceAccountName: {{ .Values.web.serviceAccountName }}
       containers:
         - name: migrations
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}

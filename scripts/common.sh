@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 #
 # Common Kubernetes functions
 #
@@ -138,7 +140,7 @@ maintenance_enable() {
 
   if ! kubectl -n "$_ns" get deployment maintenance-page >/dev/null; then
     echo "There is no deployment named 'maintenance-page' in the namespace '$_ns'. Cannot enable maintenance mode!"
-    return 1
+    return
   fi
 
   echo "Deployment 'maintenance-page' found in namespace '$_ns'"

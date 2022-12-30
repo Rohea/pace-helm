@@ -15,9 +15,11 @@
 - mountPath: /pace/.env.local
   name: pace-config-secret-volume
   subPath: pace-env
+{{- if .Values.ingress.main.tls.enabled -}}
 - name: tls-secret-store
   mountPath: "/mnt/tls-secret"
   readOnly: true
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
@@ -30,12 +32,14 @@
     readOnly: true
     volumeAttributes:
       secretProviderClass: pace-config-secret
+{{- if .Values.ingress.main.tls.enabled -}}
 - name: tls-secret-store
   csi:
     driver: secrets-store.csi.k8s.io
     readOnly: true
     volumeAttributes:
       secretProviderClass: "tls-cert-provider"
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
