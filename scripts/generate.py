@@ -57,12 +57,45 @@ def get_flag_if_file_exists(filename: str) -> Optional[str]:
     return res
 
 
-def generate_deploy_info_files(deploy_notes: Path):
-    with deploy_notes.open() as f:
-        deploy_notes = yaml.safe_load(f)
+def generate_deploy_info_files(deployTag: str, flags_str: str, helm_root: Path):
+    def _parse_section_lines(section_heading: str, lines: List[str]) -> List[str]:
+        """
+        Parse the plain text section from 'helm install' output with the given heading.
+
+        :param section_heading: The heading of the section, without trailing colon. I.e. for 'NOTES:' section, the parameter should be 'NOTES'.
+        :param lines: all the lines written out by 'helm install --debug'
+        :return: the lines belonging to the section
+        """
+        result = []
+        inside_section = False
+        for line in lines:
+            if line == f'{section_heading}:':
+                inside_section = True
+                continue
+
+            if inside_section and re.match(r'[A-Z]+:', line):
+                break
+
+            if inside_section:
+                result.append(line)
+
+        return result
+
+    cmd = f'helm install --debug --dry-run --generate-name --namespace nonexistent-foobarlorem --set deployTag={deployTag} {flags_str} {helm_root.resolve()}'
+    output = run_bash(cmd)
+    lines = output.splitlines(keepends=False)
+
+    deploy_report = _parse_section_lines('NOTES', lines)
+    Path('deploy_report.txt').write_text('\n'.join(deploy_report) + '\n', encoding='utf-8')
+
+    merged_values_str_list = _parse_section_lines('COMPUTED VALUES', lines)
+    merged_values = yaml.safe_load('\n'.join(merged_values_str_list))
+
+    meta_values = {}
+    if '_meta' in merged_values:
+        meta_values = merged_values['_meta']
 
     meta_out_lines = []
-    meta_values = deploy_notes['metaValues']
     for k, v in meta_values.items():
         if k == 'requiredKubectlContext' and v is not None:
             meta_out_lines.append(f'REQUIRED_KUBECTL_CONTEXT={v}')
@@ -70,9 +103,6 @@ def generate_deploy_info_files(deploy_notes: Path):
             meta_out_lines.append('STOP_ON_DEPLOY_FOR_DB_BACKUP=true')
 
     Path('.meta_deploy_directives').write_text('\n'.join(meta_out_lines) + '\n', encoding='utf-8')
-
-    report = deploy_notes['deployReport']
-    Path('deploy_report.txt').write_text(report, encoding='utf-8')
 
 
 def parse_args():
@@ -108,11 +138,9 @@ def main():
     timestamp = datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
     print(f'Using timestamp "{timestamp}" in the migration job')
 
-    deploy_notes_fn = 'deploy_notes.yaml'
     for cmd, target_fn in [
-        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml --show-only templates/secrets-provider.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
+        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
         (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
-        (f'helm template --set deployTag={deployTag} --set renderNotes=true --show-only templates/notes.yaml {flags_str} {helm_root.resolve()}', deploy_notes_fn),
     ]:
         print_stderr(f'Executing command "{cmd}" and saving as "{target_fn}"')
         output = run_bash(cmd)
@@ -123,7 +151,7 @@ def main():
             print(output)
             print(f'<end of contents of "{target_fn}">')
 
-    generate_deploy_info_files(Path(deploy_notes_fn))
+    generate_deploy_info_files(str(deployTag), flags_str, helm_root)
 
 
 if __name__ == '__main__':

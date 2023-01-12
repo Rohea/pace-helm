@@ -51,5 +51,7 @@ After the manifest files have been generated with the `generate` command, they c
 The script will take care of scaling down old resources, running migrations and deploying the new app version as described
 above.
 
+**NOTE/TODO**: the script currently does not wait for any database backup. The option for this needs to be added for production.
+
 # Contributing
 The source of this repository is in the `rh/rh` project in the private Rohea GitLab. All contributions need to go through there.

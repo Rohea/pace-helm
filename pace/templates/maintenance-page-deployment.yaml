@@ -29,12 +29,6 @@ spec:
             - containerPort: 80
               protocol: TCP
           imagePullPolicy: Always
-          readinessProbe:
-            httpGet:
-              port: 80
-              path: /
-            initialDelaySeconds: 10
-            periodSeconds: 10
           resources:
             requests:
               memory: 50Mi
