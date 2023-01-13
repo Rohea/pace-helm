@@ -212,6 +212,7 @@ gitlab:
   gitlabEnvironment: n/a
   symfonyEnvironment: n/a
   kubernetesNamespace: n/a
+  kubernetesCluster: n/a
   sentryRelease: n/a
 
 ##

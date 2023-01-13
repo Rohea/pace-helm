@@ -40,11 +40,20 @@ deployReport: |
   --------------------------------------------------------------------------------
   GitLab deploy information:
     GitLab environment:   {{ .Values.gitlab.gitlabEnvironment }}
-    Symfony environment:  {{ .Values.gitlab.symfonyEnvironment}}
-    Kubernetes namespace: {{ .Values.gitlab.kubernetesNamespace}}
+    Symfony environment:  {{ .Values.gitlab.symfonyEnvironment }}
+    Kubernetes cluster:   {{ .Values.gitlab.kubernetesCluster }}
+    Kubernetes namespace: {{ .Values.gitlab.kubernetesNamespace }}
 
   Sentry
     Release name:        {{ .Values.gitlab.sentryRelease }}
+  {{- end }}
+
+  {{- if .Values.gitlab.gitlabBasedDeploy }}
+  Elastic monitoring (direct link):
+    https://logs.rohea.com/app/dashboards#/view/23a98970-926c-11ed-a13e-2d0979528bc9?_a=(filters:!((query:(match_phrase:(kubernetes.namespace:{{ .Values.gitlab.kubernetesNamespace}}))),(query:(match_phrase:(kubernetes.cluster:{{ .Values.gitlab.kubernetesCluster }})))))
+  {{- else }}
+  Elastic monitoring (choose the namespace manually):
+    https://logs.rohea.com/app/dashboards#/view/23a98970-926c-11ed-a13e-2d0979528bc9
   {{- end }}
 
   ********************************************************************************
