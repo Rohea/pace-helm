@@ -30,7 +30,6 @@ spec:
         pace.rohea.com/allow-network-db: "true"
     spec:
       automountServiceAccountToken: false
-      serviceAccountName: {{ .Values.web.serviceAccountName }}
       containers:
         - name: php-nginx
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
@@ -53,12 +52,6 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 60
           {{- end }}
-          readinessProbe:
-            httpGet:
-              port: 8080
-              path: /api/config
-            initialDelaySeconds: 5
-            periodSeconds: 30
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
       volumes:

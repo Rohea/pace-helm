@@ -1,0 +1,42 @@
+********************************************************************************
+*************************** 🚀 Deploy successful! 🎉 ***************************
+********************************************************************************
+
+Components:
+  📦 Pace web
+       URL:   https://{{ .Values.ingress.main.deployUrl }}
+       Login: https://{{ .Values.ingress.main.deployUrl }}/login
+
+  {{- if .Values.ingress.additional }}
+
+  📦 Additional ingresses
+  {{- range $name, $definition := .Values.ingress.additional }}
+    📡 {{ $name }}
+         URL: https://{{ $definition.deployUrl | default $.Values.ingress.main.deployUrl }}{{ ($definition.host).path | default "/" }}
+  {{- end }}
+  {{- end }}
+
+  {{- if .Values.paceDev.enabled }}
+  📦 PaceDev
+       URL:   https://pacedev.{{ .Values.ingress.main.deployUrl }}
+  {{- end }}
+
+  {{- if .Values.mercure.enabled }}
+  📦 Mercure
+       Pub/Sub URL:  https://{{ .Values.ingress.main.deployUrl }}/.well-known/mercure
+       Web UI:       {{ if .Values.mercure.debug }}https://{{ .Values.ingress.main.deployUrl }}/.well-known/mercure/ui/{{ else }}Not available (debug mode disabled){{ end }}
+  {{- end }}
+
+{{- if .Values.gitlab.gitlabBasedDeploy }}
+
+--------------------------------------------------------------------------------
+GitLab deploy information:
+  GitLab environment:   {{ .Values.gitlab.gitlabEnvironment }}
+  Symfony environment:  {{ .Values.gitlab.symfonyEnvironment}}
+  Kubernetes namespace: {{ .Values.gitlab.kubernetesNamespace}}
+
+Sentry
+  Release name:        {{ .Values.gitlab.sentryRelease }}
+{{- end }}
+
+********************************************************************************
