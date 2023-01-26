@@ -70,10 +70,6 @@ web:
     limits:
       memory: 800Mi # Upper estimate, subject to change based on empirical values
       cpu: 1
-
-  # The service account name to use for the pod
-  serviceAccountName: default
-
 #  envFrom:
 #    - secretRef:
 #        name: blob-container-sas-url
@@ -109,7 +105,6 @@ scheduler:
       cpu: 500m
 
 statsd:
-  enabled: true
   image: registry.rohea.com/ops/docker-images/statsd:1.1.8
 
 maintenancePage:
@@ -198,65 +193,16 @@ mercure:
 # restart the containers automatically.
 enableKubernetesProbes: true
 
-# If true, will render the "meta" notes.yaml file, which is a replacement for the NOTES.txt file.
-# See the file contents for more details.
-renderNotes: false
-
 availableContexts:
   - microk8s
   - azure
-  - aws # TODO is this needed?
 
 gitlab:
   gitlabBasedDeploy: false
   gitlabEnvironment: n/a
   symfonyEnvironment: n/a
   kubernetesNamespace: n/a
-  kubernetesCluster: n/a
   sentryRelease: n/a
-
-##
-## CSI SecretProviderClass resources to create
-## These classes configure integration with cloud providers' secrets management services (AWS Secrets Manager, Azure KeyVault)
-#secretProviderClasses:
-#  someProvider:
-#    # The name of the SecretProviderClass resource to create
-#    name: pace-config
-#
-#    # The secrets manager provider (aws, azure)
-#    provider: azure
-#
-#    # Azure-specific configuration
-#    azure:
-#      # The client ID of the AKS nodepool identity. Obtain with: `az aks show --name "$AKS_NAME" --query 'identityProfile.kubeletidentity.clientId' -o tsv`
-#      userAssignedIdentityID: abcd1234-ef56-ab12-cd34-1234567890ab
-#
-#      # The tenant ID of the AKS resource. Obtain with: `az aks show --name "$AKS_NAME" --query 'identity.tenantId' -o tsv`
-#      tenantId: abcd1234-ef56-ab12-cd34-1234567890ab
-#
-#      # The name of the KeyVault to integrate with
-#      keyvaultName: kv-some-name
-#
-#    # The objects config - this is (usually) a multiline, YAML-compatible string
-#    objects: |
-#      # For AWS
-#      - objectName: "arn:aws:secretsmanager:eu-central-1:930955222283:secret:sandbox/pace.env-qsoQBr"
-#        jmesPath:
-#        - path: envfile
-#          objectAlias: pace-env
-#
-#      # For Azure
-#      array:
-#        - |
-#          objectName: pace-env
-#          objectType: secret
-#
-#    secretObjects:
-#      - secretName: mongo-forwarder # Name of the Kubernetes secret object to create
-#        type: Opaque
-#        data:
-#          - objectName: mongo-atlas-cluster-name
-#            key: CLUSTER_NAME
 
 _meta:
   # Require the given kubectl context name to be active (in 'kubectl config use-context xxxxx'). This is useful in

@@ -28,7 +28,6 @@ spec:
         rohea.com/stop-during-deploy: 'true'
     spec:
       automountServiceAccountToken: false
-      serviceAccountName: {{ .Values.web.serviceAccountName }}
       containers:
         - name: messenger-consumer
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
