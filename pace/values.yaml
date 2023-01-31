@@ -144,6 +144,7 @@ sshTunneller:
 migrationsJob:
   enabled: false
   datetime: undefined
+  additionalFlags:
   resources:
     requests:
       memory: 1024Mi
