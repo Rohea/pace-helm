@@ -81,6 +81,7 @@ def parse_args():
     parser.add_argument('--config-file', '-c', action='append', help='Include a Helm values file if it exists. Is silently ignored if the file does not exist. May be provided multiple times.')
     parser.add_argument('--print', action='store_true', help='In addition to writing the files, also print out the YAML contents and info messages on stdout.')
     parser.add_argument('--pace-version', help='Override the Pace version. The value of this option will be used as the Docker image tag of the web/messenger/scheduler etc. components.')
+    parser.add_argument('--migrations-run-multiple-major', help='Allow the migrations job to execute migrations from across multiple major versions at once.')
     return parser.parse_args()
 
 
@@ -99,6 +100,9 @@ def main():
         flags.append(f'--set web.image.tag={override_pace_version}')
 
     flags_str = ' '.join(flags)
+    migrations_flags = ''
+    if args.migrations_run_multiple_major:
+        migrations_flags = '--set migrationsJob.additionalFlags="--run-multiple-major"'
 
     deployTag = datetime.now().timestamp()
 
