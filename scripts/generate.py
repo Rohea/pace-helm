@@ -100,9 +100,9 @@ def main():
         flags.append(f'--set web.image.tag={override_pace_version}')
 
     flags_str = ' '.join(flags)
-    migrations_flags = ''
+    migrations_flags_str = ''
     if args.migrations_run_multiple_major:
-        migrations_flags = '--set migrationsJob.additionalFlags="--run-multiple-major"'
+        migrations_flags_str = '--set migrationsJob.additionalFlags="--run-multiple-major"'
 
     deployTag = datetime.now().timestamp()
 
@@ -114,7 +114,7 @@ def main():
 
     deploy_notes_fn = 'deploy_notes.yaml'
     for cmd, target_fn in [
-        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml --show-only templates/secrets-provider.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
+        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml --show-only templates/secrets-provider.yaml {flags_str} {migrations_flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
         (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
         (f'helm template --set deployTag={deployTag} --set renderNotes=true --show-only templates/notes.yaml {flags_str} {helm_root.resolve()}', deploy_notes_fn),
     ]:
