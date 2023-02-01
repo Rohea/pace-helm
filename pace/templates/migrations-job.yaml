@@ -31,8 +31,10 @@ spec:
           envFrom:
             {{- include "pace.migrations.envFrom" . | nindent 12 }}
           env:
+            {{- if .Values.migrationsJob.additionalFlags }}
             - name: MIGRATIONS_CMD_ADDITIONAL_FLAGS
               value: {{ .Values.migrationsJob.additionalFlags }}
+            {{- end }}
           volumeMounts:
             {{- include "pace.migrations.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end }}
