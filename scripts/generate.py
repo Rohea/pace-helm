@@ -57,12 +57,45 @@ def get_flag_if_file_exists(filename: str) -> Optional[str]:
     return res
 
 
-def generate_deploy_info_files(deploy_notes: Path):
-    with deploy_notes.open() as f:
-        deploy_notes = yaml.safe_load(f)
+def generate_deploy_info_files(deployTag: str, flags_str: str, helm_root: Path):
+    def _parse_section_lines(section_heading: str, lines: List[str]) -> List[str]:
+        """
+        Parse the plain text section from 'helm install' output with the given heading.
+
+        :param section_heading: The heading of the section, without trailing colon. I.e. for 'NOTES:' section, the parameter should be 'NOTES'.
+        :param lines: all the lines written out by 'helm install --debug'
+        :return: the lines belonging to the section
+        """
+        result = []
+        inside_section = False
+        for line in lines:
+            if line == f'{section_heading}:':
+                inside_section = True
+                continue
+
+            if inside_section and re.match(r'[A-Z]+:', line):
+                break
+
+            if inside_section:
+                result.append(line)
+
+        return result
+
+    cmd = f'helm install --debug --dry-run --generate-name --namespace nonexistent-foobarlorem --set deployTag={deployTag} {flags_str} {helm_root.resolve()}'
+    output = run_bash(cmd)
+    lines = output.splitlines(keepends=False)
+
+    deploy_report = _parse_section_lines('NOTES', lines)
+    Path('deploy_report.txt').write_text('\n'.join(deploy_report) + '\n', encoding='utf-8')
+
+    merged_values_str_list = _parse_section_lines('COMPUTED VALUES', lines)
+    merged_values = yaml.safe_load('\n'.join(merged_values_str_list))
+
+    meta_values = {}
+    if '_meta' in merged_values:
+        meta_values = merged_values['_meta']
 
     meta_out_lines = []
-    meta_values = deploy_notes['metaValues']
     for k, v in meta_values.items():
         if k == 'requiredKubectlContext' and v is not None:
             meta_out_lines.append(f'REQUIRED_KUBECTL_CONTEXT={v}')
@@ -71,9 +104,6 @@ def generate_deploy_info_files(deploy_notes: Path):
 
     Path('.meta_deploy_directives').write_text('\n'.join(meta_out_lines) + '\n', encoding='utf-8')
 
-    report = deploy_notes['deployReport']
-    Path('deploy_report.txt').write_text(report, encoding='utf-8')
-
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -81,7 +111,6 @@ def parse_args():
     parser.add_argument('--config-file', '-c', action='append', help='Include a Helm values file if it exists. Is silently ignored if the file does not exist. May be provided multiple times.')
     parser.add_argument('--print', action='store_true', help='In addition to writing the files, also print out the YAML contents and info messages on stdout.')
     parser.add_argument('--pace-version', help='Override the Pace version. The value of this option will be used as the Docker image tag of the web/messenger/scheduler etc. components.')
-    parser.add_argument('--migrations-run-multiple-major', action='store_true', help='Allow the migrations job to execute migrations from across multiple major versions at once.')
     return parser.parse_args()
 
 
@@ -100,9 +129,6 @@ def main():
         flags.append(f'--set web.image.tag={override_pace_version}')
 
     flags_str = ' '.join(flags)
-    migrations_flags_str = ''
-    if args.migrations_run_multiple_major:
-        migrations_flags_str = '--set migrationsJob.additionalFlags="--run-multiple-major"'
 
     deployTag = datetime.now().timestamp()
 
@@ -112,11 +138,9 @@ def main():
     timestamp = datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
     print(f'Using timestamp "{timestamp}" in the migration job')
 
-    deploy_notes_fn = 'deploy_notes.yaml'
     for cmd, target_fn in [
-        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml --show-only templates/secrets-provider.yaml {flags_str} {migrations_flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
+        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml {flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
         (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
-        (f'helm template --set deployTag={deployTag} --set renderNotes=true --show-only templates/notes.yaml {flags_str} {helm_root.resolve()}', deploy_notes_fn),
     ]:
         print_stderr(f'Executing command "{cmd}" and saving as "{target_fn}"')
         output = run_bash(cmd)
@@ -127,7 +151,7 @@ def main():
             print(output)
             print(f'<end of contents of "{target_fn}">')
 
-    generate_deploy_info_files(Path(deploy_notes_fn))
+    generate_deploy_info_files(str(deployTag), flags_str, helm_root)
 
 
 if __name__ == '__main__':
