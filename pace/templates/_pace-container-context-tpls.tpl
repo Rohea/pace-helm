@@ -70,9 +70,17 @@
 {{- define "pace.migrations.volumeMounts" }}
 {{- if eq .Values.deployContext "microk8s" }}{{- end }}
 {{- if eq .Values.deployContext "azure" }}
+
+{{/* See FEN-1579. This /mnt/envvars/ mounting should become the default once it's properly tested. */}}
+{{- if .Values.featureFlags.newSecretsMount }}
+- mountPath: /mnt/envvars/
+  name: pace-config-secret-volume
+{{- else }}
 - mountPath: /pace/.env.local
   name: pace-config-secret-volume
   subPath: pace-env
+{{- end }}
+
 {{- end }}
 {{- end }}
 
