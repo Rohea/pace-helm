@@ -29,8 +29,6 @@ spec:
           resources:
             {{- toYaml .Values.migrationsJob.resources | nindent 12 }}
           envFrom:
-            {{- include "pace.envFrom" . | nindent 12 }}
-            {{- with .Values.web.envFrom }}{{- toYaml . | nindent 12 }}{{- end }}
             {{- include "pace.migrations.envFrom" . | nindent 12 }}
           env:
             {{- if .Values.migrationsJob.additionalFlags }}
@@ -38,10 +36,10 @@ spec:
               value: {{ .Values.migrationsJob.additionalFlags }}
             {{- end }}
           volumeMounts:
-            {{- include "pace.volumeMounts" . | nindent 12 }}
+            {{- include "pace.migrations.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end }}
       volumes:
-        {{- include "pace.volumes" . | nindent 8 }}
+        {{- include "pace.migrations.volumes" . | nindent 8 }}
         {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
