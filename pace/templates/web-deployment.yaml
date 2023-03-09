@@ -46,13 +46,6 @@ spec:
             {{- include "pace.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
           {{- if .Values.enableKubernetesProbes }}
-          startupProbe:
-            httpGet:
-              port: 8080
-              path: /api/config
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            failureThreshold: 20
           livenessProbe:
             httpGet:
               port: 8080
@@ -64,6 +57,7 @@ spec:
             httpGet:
               port: 8080
               path: /api/config
+            initialDelaySeconds: 5
             periodSeconds: 30
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
