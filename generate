@@ -1,18 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-if python3 --version >/dev/null 2>&1; then
-  python3 "${DIR}/scripts/generate.py" "$@"
-  exit
-fi
-
-if python --version >/dev/null 2>&1; then
-  python "${DIR}/scripts/generate.py" "$@"
-  exit
-fi
-
-echo "ERROR: neither 'python3' nor 'python' executables found (tried 'python3 --version' and 'python --version')"
-exit 1
+python3 "${DIR}/scripts/generate.py" "$@"
