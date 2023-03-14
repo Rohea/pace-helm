@@ -4,11 +4,6 @@ installationSlug: default-installation
 # for possible values see availableContexts
 deployContext: microk8s
 
-# Feature flags - smaller features for a transition period. Each flag is expected to go away in a not-too-long future.
-featureFlags:
-  # Mount secrets as environment variable files (under /mnt/envvars/, see FEN-1579)
-  newSecretsMount: false
-
 # The deploy tag should be a random string, unique to a particular deployment. It can be e.g. a timestamp. The tag
 # is used to identify which resources have been created by this deployment and which older resources should be pruned.
 deployTag: to-be-overridden
@@ -126,7 +121,9 @@ postfix:
 
 express:
   enabled: false
-  image: todo-express
+  image:
+    repository: undefined-repo
+    tag: undefined-tag
 
 paceDev:
   enabled: false
