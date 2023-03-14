@@ -5,6 +5,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import *
+import sys
 
 import yaml
 
@@ -86,6 +87,9 @@ def parse_args():
 
 
 def main():
+    if sys.version_info[0] < 3:
+        raise Exception("Must be using Python 3")
+
     args = parse_args()
 
     helm_root = Path(__file__).parent.parent.joinpath('pace')
@@ -98,6 +102,7 @@ def main():
 
     if override_pace_version := args.pace_version:
         flags.append(f'--set web.image.tag={override_pace_version}')
+        flags.append(f'--set express.image.tag={override_pace_version}')
 
     flags_str = ' '.join(flags)
     migrations_flags_str = ''

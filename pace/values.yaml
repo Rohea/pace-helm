@@ -121,7 +121,9 @@ postfix:
 
 express:
   enabled: false
-  image: todo-express
+  image:
+    repository: undefined-repo
+    tag: undefined-tag
 
 paceDev:
   enabled: false
