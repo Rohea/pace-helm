@@ -102,6 +102,7 @@ def main():
 
     if override_pace_version := args.pace_version:
         flags.append(f'--set web.image.tag={override_pace_version}')
+        flags.append(f'--set express.image.tag={override_pace_version}')
 
     flags_str = ' '.join(flags)
     migrations_flags_str = ''
