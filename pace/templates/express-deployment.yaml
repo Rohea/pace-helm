@@ -28,7 +28,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: express
-          image: {{ .Values.express.image.repository }}:{{ .Values.express.image.tag }}
+          image: {{ .Values.express.image }}
           ports:
             - containerPort: 80
           imagePullPolicy: Always
