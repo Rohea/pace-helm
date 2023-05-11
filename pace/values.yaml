@@ -237,7 +237,6 @@ gitlab:
 #    # Azure-specific configuration
 #    azure:
 #      # The client ID of the AKS nodepool identity. Obtain with: `az aks show --name "$AKS_NAME" --query 'identityProfile.kubeletidentity.clientId' -o tsv`
-#      # or by looking into the AD details of this identity.
 #      userAssignedIdentityID: abcd1234-ef56-ab12-cd34-1234567890ab
 #
 #      # The tenant ID of the AKS resource. Obtain with: `az aks show --name "$AKS_NAME" --query 'identity.tenantId' -o tsv`
