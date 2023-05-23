@@ -1,3 +1,5 @@
+import os
+
 import argparse
 import re
 import subprocess
@@ -9,6 +11,8 @@ import sys
 
 import yaml
 
+# Matches '${UPPER_lower_123}', first match group is 'UPPER_lower_123'. Does NOT match if backslash is in front: '\${XXX}'.
+_re_match_reference = re.compile(r'(?<!\\)\$\{([A-Za-z0-9_]+)}')
 
 def print_stderr(msg):
     print(msg, file=sys.stderr)
@@ -38,25 +42,53 @@ def get_flag_if_file_exists(filename: str) -> Optional[str]:
     :return: if the filename exists, returns '--values={filename}'; None otherwise
     """
     path = Path(filename)
-    msg = f'Checking if "{path.resolve()}" exists to include for Helm... '
+    msg = f'Checking if "{path.resolve()}" exists to include for Helm...\n'
 
-    if path.is_file():
-        res = f'--values="{path.resolve()}"'
-    else:
-        res = None
+    if not path.is_file():
+        msg += '  ... NO'
+        print_stderr(msg)
+        return None
 
-    if res:
-        msg += 'YES (content below)'
-        msg += '\n'
-        msg += path.read_text()
-        msg += f'\n### End of content of {path.resolve()}'
-    else:
-        msg += 'NO'
+    substfile = create_envsubst_file(path)
+
+    res = f'--values="{substfile.resolve()}"'
+
+    msg += '  ... YES (content below)\n'
+    msg += f'### Start of content of {substfile.resolve()} (file based on {path.resolve()}, variable references resolved)'
+    msg += '\n'
+    msg += substfile.read_text()
+    msg += f'\n### End of content of {substfile.resolve()}'
 
     print_stderr(msg)
 
     return res
 
+def create_envsubst_file(input_file: Path) -> Path:
+    """
+    Creates a new file based on the input, where all shell-format variables are replaced with their environment values.
+
+    Replaces the following:
+
+      ${FOO} -> value of FOO. If FOO is not defined in the environment, an exception is raised.
+
+    :param input_file:
+    :return:
+    """
+    def _repl(m: re.Match) -> str:
+        var_name = m.group(1)
+        try:
+            return os.environ[var_name]
+        except KeyError:
+            raise ValueError(f'Variable "{var_name}" is not defined. It is referenced in file "{input_file.resolve()}"')
+
+    input_content = input_file.read_text()
+
+    replaced_content = _re_match_reference.sub(_repl, input_content)
+
+    output_file = Path(f'{input_file.resolve()}.envsubst')
+    output_file.write_text(replaced_content)
+
+    return output_file
 
 def generate_deploy_info_files(deploy_notes: Path):
     with deploy_notes.open() as f:
