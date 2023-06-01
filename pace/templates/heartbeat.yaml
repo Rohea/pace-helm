@@ -57,6 +57,11 @@ metadata:
   name: heartbeat-config
 data:
   heartbeat.yml: |-
+    # We are using an already-established output target, no need to create ILM policy. This defaults to true in which
+    # case Heartbeat will fail when it does not have permissions to query the ILM on Elastic. Which it should not, when
+    # we only want it to send data.
+    setup.ilm.enabled: false
+
     output.elasticsearch:
       # Note: the following environment variables should come from the 'heartbeat-secret-config' resource.
       #       See the heartbeat.yaml template file header comment.
@@ -78,7 +83,7 @@ data:
           status: 200
 
       - type: http
-        id: {{ required "Value heartbeat.monitor.id is required when heartbeat is enabled" .Values.heartbeat.monitor.id }}-https-monitor
+        id: {{ required "Value heartbeat.monitor.id is required when heartbeat is enabled" .Values.heartbeat.monitor.id }}-frontpage-monitor
         name: {{ required "Value heartbeat.monitor.name is required when heartbeat is enabled" .Values.heartbeat.monitor.name }} Frontpage
         urls:
           - "{{ required "Value heartbeat.monitor.url is required when heartbeat is enabled" .Values.heartbeat.monitor.url }}"
@@ -90,4 +95,4 @@ data:
         id: pace-helm
         geo:
           name: Pace Helm
-{{ end }}
+    {{ end }}

@@ -215,7 +215,7 @@ heartbeat:
      # Heartbeat monitor ID. Different monitors are grouped together through the same IDs.
      # The chart will create two monitors based on the given parameter:
      #   ${ID}-smoketest-monitor
-     #   ${ID}-https-monitor
+     #   ${ID}-frontpage-monitor
      id:
      # Heartbeat monitor human-readable name. If multiple monitors of the same ID have different names, only one is used and others ignored.
      # The chart will create two monitors based on the given parameter:
