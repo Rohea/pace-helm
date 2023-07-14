@@ -40,7 +40,7 @@ ingress:
     # List of IPs allowed to connect to the ingress resource. This will be put into a nginx annotation 'nginx.ingress.kubernetes.io/whitelist-source-range'
     allowedIps: ~ # xx
     # The nginx controller class to use
-    class: public
+    class: nginx
     host:
       pathType: Prefix
       path: '/'

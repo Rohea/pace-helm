@@ -18,6 +18,7 @@ metadata:
     pace.rohea.com/component: pace-ingress
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:
+  ingressClassName: {{ $definition.class | default $.Values.ingress.main.class }}
   {{- if (($definition.tls).enabled | default $.Values.ingress.main.tls.enabled) }}
   tls:
     - hosts:
