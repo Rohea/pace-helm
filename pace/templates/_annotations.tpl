@@ -18,5 +18,4 @@ nginx.ingress.kubernetes.io/whitelist-source-range: '{{ .local.allowedIps | defa
 {{- if ((.local.letsEncrypt).enabled | default .main.letsEncrypt.enabled) }}
 cert-manager.io/cluster-issuer: "{{ (.local.letsEncrypt).clusterIssuer | default .main.letsEncrypt.clusterIssuer }}"
 {{- end }}
-kubernetes.io/ingress.class: {{ .local.class | default .main.class }}
 {{- end }}
