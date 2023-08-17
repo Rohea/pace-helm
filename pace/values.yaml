@@ -225,6 +225,12 @@ heartbeat:
      # The main URL of the Pace instance. Must be the root URL - API status check and potentially other diagnostic paths will be appended to it automatically.
      url: # https://foo.bar
 
+     # # Optional. If a custom certificate authority is needed to run the monitor HTTPS request, provide its certificate
+     # # in a PEM format.
+     # customCa: |
+     #   -----BEGIN CERTIFICATE-----
+     #   MIIFB...
+
 # If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
 # may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to
 # restart the containers automatically.

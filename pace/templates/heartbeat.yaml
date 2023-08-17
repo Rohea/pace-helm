@@ -81,6 +81,12 @@ data:
         schedule: '@every 30s'
         check.response:
           status: 200
+        {{- if .Values.heartbeat.monitor.customCa }}
+        ssl:
+          certificate_authorities:
+            - |
+              {{- .Values.heartbeat.monitor.customCa | nindent 14 }}
+        {{- end }}
 
       - type: http
         id: {{ required "Value heartbeat.monitor.id is required when heartbeat is enabled" .Values.heartbeat.monitor.id }}-frontpage-monitor
@@ -90,6 +96,12 @@ data:
         schedule: '@every 30s'
         check.response:
           status: 200
+        {{- if .Values.heartbeat.monitor.customCa }}
+        ssl:
+          certificate_authorities:
+            - |
+              {{- .Values.heartbeat.monitor.customCa | nindent 14 }}
+        {{- end }}
 
       run_from:
         id: pace-helm
