@@ -3,9 +3,7 @@
 set -euo pipefail
 
 #
-# This script enables maintenance mode in the given Kubernetes namespace.
-# Note that the script is only able to enable maintenance, not disable it. To disable maintenance, run a full
-# deploy.
+# This script toggles maintenance mode in the given Kubernetes namespace.
 #
 
 usage() {
