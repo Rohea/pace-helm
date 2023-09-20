@@ -42,12 +42,7 @@ spec:
           envFrom:
             {{- include "pace.envFrom" . | nindent 12 }}
             {{- with .Values.web.envFrom }}{{- toYaml . | nindent 12 }}{{- end }}
-            - configMapRef:
-                name: pace-helm
           volumeMounts:
-            - name: jwt-secret-volume
-              readOnly: true
-              mountPath: "/pace/config/jwt/kubernetes/"
             {{- include "pace.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
           {{- if .Values.enableKubernetesProbes }}
@@ -73,9 +68,6 @@ spec:
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
       volumes:
-        - name: jwt-secret-volume
-          secret:
-            secretName: jwt
         {{- include "pace.volumes" . | nindent 8 }}
         {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
       {{- with .Values.imagePullSecrets }}
