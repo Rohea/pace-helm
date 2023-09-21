@@ -95,6 +95,7 @@ web:
 
 messengerConsumers:
   asyncReplicas: 1
+  sequentialReplicas: 1
   resources:
     requests:
       memory: 128Mi

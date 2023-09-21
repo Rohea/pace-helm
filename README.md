@@ -16,8 +16,6 @@ The files should then be applied with `kubectl` or the like. Do not use `helm in
 ### Configuration
 See the [values.yaml](./pace/values.yaml) file for a complete list of configuration options.
 
-There may be pre-deploy manual steps to take. See the chart [README.md](pace/README.md) for more details.
-
 ### Generating files
 Use the provided wrapper script unless you have a specific need and know what you are doing. 
 
