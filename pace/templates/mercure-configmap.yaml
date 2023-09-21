@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mercure-helm
+data:
+  # This disables https internally (the service is accessed through nginx ingress which handles https with letsencrypt)
+  SERVER_NAME: ':80'
+
+  MERCURE_PUBLISHER_JWT_ALG: 'RS256'
+  MERCURE_SUBSCRIBER_JWT_ALG: 'RS256'
+
+  MERCURE_EXTRA_DIRECTIVES: |
+    {{- .Values.mercure.env.extraDirectives | join "\n" | nindent 4 }}

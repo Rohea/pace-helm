@@ -187,15 +187,18 @@ entrypoints:
     enabled: false
 
 mercure:
-  enabled: false
+  enabled: true
+
+  # Debug mode. If enabled, the dev Caddyfile configuration is used when starting the Mercure Hub (https://github.com/dunglas/mercure/blob/main/Caddyfile.dev)
+  # This enables an Admin UI at '/.well-known/mercure/ui/'
   debug: false
+
   image:
     repository: dunglas/mercure
-    tag: v0.14.1
+    tag: v0.15
+
   env:
-    publisherJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
-    subscriberJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
-    extraDirectives: |
+    extraDirectives:
       - publish_origins=*
       - cors_origins=*
       - anonymous=1
