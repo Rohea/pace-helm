@@ -95,6 +95,7 @@ web:
 
 messengerConsumers:
   asyncReplicas: 1
+  sequentialReplicas: 1
   resources:
     requests:
       memory: 128Mi
@@ -187,18 +188,15 @@ entrypoints:
     enabled: false
 
 mercure:
-  enabled: true
-
-  # Debug mode. If enabled, the dev Caddyfile configuration is used when starting the Mercure Hub (https://github.com/dunglas/mercure/blob/main/Caddyfile.dev)
-  # This enables an Admin UI at '/.well-known/mercure/ui/'
+  enabled: false
   debug: false
-
   image:
     repository: dunglas/mercure
-    tag: v0.15
-
+    tag: v0.14.1
   env:
-    extraDirectives:
+    publisherJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
+    subscriberJwtKey: '!ChangeThisMercureHubJWTSecretKey!'
+    extraDirectives: |
       - publish_origins=*
       - cors_origins=*
       - anonymous=1
