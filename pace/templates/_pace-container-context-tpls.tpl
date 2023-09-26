@@ -1,6 +1,12 @@
 {{/******************************************************************************************************************/}}
 
 {{- define "pace.envFrom" }}
+- secretRef:
+    name: mercure
+    optional: true
+- configMapRef:
+    name: mercure-helm
+    optional: true
 {{- if eq .Values.deployContext "microk8s" }}
 - configMapRef:
     name: pace
