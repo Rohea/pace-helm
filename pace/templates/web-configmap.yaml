@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pace-helm
-data:
-  JWT_SECRET_KEY: '%kernel.project_dir%/config/jwt/kubernetes/private.pem'
-  JWT_PUBLIC_KEY: '%kernel.project_dir%/config/jwt/kubernetes/public.pem'
