@@ -13,6 +13,7 @@ Construct as:
 rohea.com/installation: {{ .global.installationSlug }}
 rohea.com/app: pace
 rohea.com/component: {{ .component }}
+rohea.com/deploy-environment: {{ .global.gitlab.gitlabEnvironment }}
 {{- end }}
 
 {{/*
