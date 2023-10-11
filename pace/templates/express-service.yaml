@@ -5,6 +5,7 @@ kind: Service
 metadata:
   name: express-print-server
   labels:
+    rohea.com/collect_metrics: 'true'
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:
   selector:

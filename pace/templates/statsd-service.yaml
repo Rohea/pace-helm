@@ -8,6 +8,7 @@ kind: Service
 metadata:
   name: statsd
   labels:
+    rohea.com/collect_metrics: 'true'
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:

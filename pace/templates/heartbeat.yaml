@@ -19,6 +19,7 @@ metadata:
   labels:
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
     rohea.com/stop-during-deploy: 'true'
+    rohea.com/collect_metrics: 'true'
 spec:
   replicas: 1
   selector:

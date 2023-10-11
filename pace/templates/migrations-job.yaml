@@ -8,6 +8,7 @@ kind: Job
 metadata:
   name: pace-database-migrations-{{ .Values.migrationsJob.datetime }}
   labels:
+    rohea.com/collect_metrics: 'true'
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
 spec:
   backoffLimit: 0
@@ -16,6 +17,7 @@ spec:
       labels:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
         pace.rohea.com/allow-network-db: "true"
+        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       restartPolicy: Never

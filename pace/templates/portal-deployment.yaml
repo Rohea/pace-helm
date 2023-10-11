@@ -13,6 +13,7 @@ kind: Deployment
 metadata:
   name: portal
   labels:
+    rohea.com/collect_metrics: 'true'
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
     rohea.com/stop-during-deploy: 'true'
@@ -30,6 +31,7 @@ spec:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
         rohea.com/stop-during-deploy: 'true'
         pace.rohea.com/allow-network-db: "true"
+        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       containers:

@@ -8,6 +8,7 @@ kind: Deployment
 metadata:
   name: postfix
   labels:
+    rohea.com/collect_metrics: 'true'
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:
@@ -19,6 +20,7 @@ spec:
     metadata:
       labels:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
+        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       containers:

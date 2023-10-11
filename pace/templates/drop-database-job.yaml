@@ -12,6 +12,7 @@ kind: Job
 metadata:
   name: pace-drop-database-{{ .Values.deleteDbJob.datetime }}
   labels:
+    rohea.com/collect_metrics: 'true'
     {{- include "pace.labels.component" $componentDict | nindent 4 }}
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
 spec:
@@ -21,6 +22,7 @@ spec:
       labels:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
         pace.rohea.com/allow-network-db: "true"
+        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       restartPolicy: Never

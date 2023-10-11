@@ -1,4 +1,4 @@
-{{/*
+{{/* -------------------------------------------------------------------------------------------------------------------
 Pace component base labels
 
 The template expects a dict:
@@ -8,15 +8,20 @@ The template expects a dict:
 }
 Construct as:
   {{ $componentDict := dict "component" $componentName "global" $.Values }}
+
+Note that these labels are used as the selector matchLabels. Changing these will result in kubectl-apply errors, unless
+all existing Deployment objects are deleted first. If you want to change common Rohea/Pace labels, check out the
+template 'pace.labels.common' below.
 */}}
 {{- define "pace.labels.component" -}}
 rohea.com/installation: {{ .global.installationSlug }}
 rohea.com/app: pace
 rohea.com/component: {{ .component }}
 rohea.com/deploy-environment: {{ .global.gitlab.gitlabEnvironment }}
+rohea.com/collect_logs: 'true'
 {{- end }}
 
-{{/*
+{{/* -------------------------------------------------------------------------------------------------------------------
 Label for resources that should be considered for removing in subsequent deploys.
 
 Best shown with an example:
@@ -31,4 +36,14 @@ Best shown with an example:
 {{- define "pace.labels.deployTag" -}}
 meta.rohea.com/deploy-tag: "{{ .Values.deployTag }}"
 meta.rohea.com/resource-clearable: "true"
+{{- end }}
+
+{{/* -------------------------------------------------------------------------------------------------------------------
+Common labels to apply to all Rohea/Pace-defined pods.
+These labels are meant to control globally defined behavior. Do not use them to match against. They e.g. configure
+all pods' logs to be collected into Elastic.
+*/}}
+{{- define "pace.labels.common.pods" -}}
+rohea.com/collect_logs: 'true'
+rohea.com/collect_metrics: 'true'
 {{- end }}
