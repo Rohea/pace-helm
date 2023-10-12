@@ -19,6 +19,18 @@ rohea.com/app: pace
 rohea.com/component: {{ .component }}
 rohea.com/deploy-environment: {{ .global.gitlab.gitlabEnvironment }}
 rohea.com/collect_logs: 'true'
+rohea.com/collect_metrics: 'true'
+{{- end }}
+
+{{/*
+Selector labels used in spec.selector.matchLabels.
+Note that these labels are ONLY used as matchLabels, they are not defined onto any object. It is up to you to ensure
+that the selector labels match labels from e.g. pace.labels.component
+*/}}
+{{- define "pace.labels.selectorLabels" -}}
+rohea.com/installation: {{ .global.installationSlug }}
+rohea.com/app: pace
+rohea.com/component: {{ .component }}
 {{- end }}
 
 {{/* -------------------------------------------------------------------------------------------------------------------
@@ -36,14 +48,4 @@ Best shown with an example:
 {{- define "pace.labels.deployTag" -}}
 meta.rohea.com/deploy-tag: "{{ .Values.deployTag }}"
 meta.rohea.com/resource-clearable: "true"
-{{- end }}
-
-{{/* -------------------------------------------------------------------------------------------------------------------
-Common labels to apply to all Rohea/Pace-defined pods.
-These labels are meant to control globally defined behavior. Do not use them to match against. They e.g. configure
-all pods' logs to be collected into Elastic.
-*/}}
-{{- define "pace.labels.common.pods" -}}
-rohea.com/collect_logs: 'true'
-rohea.com/collect_metrics: 'true'
 {{- end }}

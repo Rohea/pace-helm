@@ -17,7 +17,7 @@ spec:
   replicas: {{ .Values.messengerConsumers.asyncReplicas }}
   selector:
     matchLabels:
-      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+      {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
   progressDeadlineSeconds: 300
   strategy:
     type: Recreate
@@ -27,7 +27,6 @@ spec:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
         pace.rohea.com/allow-network-db: "true"
         rohea.com/stop-during-deploy: 'true'
-        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       serviceAccountName: {{ .Values.web.serviceAccountName }}

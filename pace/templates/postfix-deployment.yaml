@@ -14,13 +14,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+      {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
   replicas: 1
   template:
     metadata:
       labels:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
-        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       containers:

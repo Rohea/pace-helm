@@ -22,7 +22,6 @@ spec:
       labels:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
         pace.rohea.com/allow-network-db: "true"
-        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       restartPolicy: Never

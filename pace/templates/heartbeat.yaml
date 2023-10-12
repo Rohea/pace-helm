@@ -24,7 +24,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+      {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
   template:
     metadata:
       labels:

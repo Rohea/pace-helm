@@ -17,7 +17,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      {{- include "pace.labels.component" $componentDict | nindent 6 }}
+      {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
   replicas: 1
   progressDeadlineSeconds: 540
   template:
@@ -25,7 +25,6 @@ spec:
       labels:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
         rohea.com/stop-during-deploy: 'true'
-        {{- include "pace.labels.common.pods" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       containers:
