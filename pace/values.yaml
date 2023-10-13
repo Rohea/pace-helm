@@ -128,6 +128,23 @@ postfix:
   enabled: true
   image: registry.rohea.com/ops/docker-images/postfix:1.0.0
 
+  # Space-separated list of domains from which to allow sending
+  allowedSenderDomains: rohea.com
+
+  # Optional list of DKIM selectors. 'pace' is the default selector for all domains unless specified otherwise.
+  # The selector defines the DNS record where a public DKIM key is expected.
+  # In this example, these two records are checked:
+  #   - pace-topdanmark-prod._domainkey.rohea.com   # specific for rohea.com
+  #   - pace._domainkey.DOMAIN.ORG                  # default for all other sender domains
+  # dkimSelector: pace,rohea.com=pace-topdanmark-prod
+  #               ^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  #                |    |
+  #                |    `- use selector "pace-topdanmark-prod" when sending e-mail from the @rohea.com domain
+  #                `- use "pace" as the default selector if no domain matches
+  #
+  # https://github.com/bokysan/docker-postfix#changing-the-dkim-selector
+  dkimSelector: pace
+
 express:
   enabled: false
   image:
