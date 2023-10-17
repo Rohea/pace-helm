@@ -146,7 +146,10 @@ function wait_for_migration_job_finish()
       break
     fi
 
-    sleep 3
+    echo "$(date +'%H:%M:%S') - Migration job has not finished yet. Status:"
+    kubectl -n "$_ns" get pod "$_pod_name" | sed 's/^/|  /g'
+
+    sleep 5
   done
 
   echo "********************************"
