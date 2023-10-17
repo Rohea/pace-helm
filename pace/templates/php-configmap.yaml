@@ -1,0 +1,10 @@
+{{/* Configmap loaded by all PHP pods */}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: php-helm
+data:
+  {{- with .Values.php.env }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}

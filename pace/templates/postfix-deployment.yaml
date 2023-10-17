@@ -30,7 +30,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: postfix-env
+                name: postfix-helm
 
           volumeMounts:
             - name: dkimkeys  # This is only populated when the 'dkimkeys' secret exists in the namespace. If not, this has no effect.

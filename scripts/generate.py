@@ -149,9 +149,20 @@ def main():
     timestamp = datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')
     print(f'Using timestamp "{timestamp}" in the migration job')
 
+    # Which template to render along with the migrations job. These will be things like configs that the migration job
+    # depends on.
+    migrations_render_templates = [
+        f'--show-only {template}'
+        for template in [
+            'templates/migrations-job.yaml',
+            'templates/secrets-provider.yaml',
+            'templates/php-configmap.yaml',
+        ]
+    ]
+
     deploy_notes_fn = 'deploy_notes.yaml'
     for cmd, target_fn in [
-        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true --show-only templates/migrations-job.yaml --show-only templates/secrets-provider.yaml {flags_str} {migrations_flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
+        (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true {" ".join(migrations_render_templates)} {flags_str} {migrations_flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
         (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
         (f'helm template --set deployTag={deployTag} --set renderNotes=true --show-only templates/notes.yaml {flags_str} {helm_root.resolve()}', deploy_notes_fn),
     ]:

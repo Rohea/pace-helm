@@ -68,6 +68,11 @@ ingress:
   #     letsEncrypt.enabled: false
   #
 
+# Configuration for all PHP pods (web, messenger, scheduler, migrations)
+php:
+  # Environment variables to inject to the pods, e.g. FOO: BAR
+  env: {}
+
 web:
   # Docker image of php-nginx to deploy
   image:

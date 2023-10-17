@@ -7,6 +7,8 @@
 - configMapRef:
     name: mercure-helm
     optional: true
+- configMapRef:
+    name: php-helm
 {{- if eq .Values.deployContext "microk8s" }}
 - configMapRef:
     name: pace
