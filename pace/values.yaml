@@ -31,6 +31,11 @@ ingress:
       # The name of the Kubernetes TLS secret to use for reading the certificate
       secretName: tls-secret
 
+      # Used when integrating with KeyVaults (and SecretsManagers etc). If true, 'tls-secret-store' will be added to
+      # the VolumeMounts of Pace pods. This is needed so that the KeyVault secret is synced and a k8s secret is created.
+      # tl;dr this should be true for environments using the KeyVault integration.
+      mountTlsSecretStore: false
+
     # LetsEncrypt CertManager provider configuration
     letsEncrypt:
       enabled: false

@@ -31,7 +31,7 @@
   subPath: pace-env
 {{- end }}
 
-{{- if .Values.ingress.main.tls.enabled }}
+{{- if .Values.ingress.main.tls.mountTlsSecretStore }}
 - name: tls-secret-store
   mountPath: "/mnt/tls-secret"
   readOnly: true
