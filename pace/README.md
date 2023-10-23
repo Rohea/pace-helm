@@ -69,3 +69,25 @@ kubectl create secret generic mercure --from-file _mercure_keys/
 ```
 
 https://mercure.rocks/docs/hub/config
+
+## How-tos
+
+### Trust a custom root CA
+To trust a custom root CA, mount the CA certificate into the pod from a secret.
+
+```bash
+$ kubectl create secret generic custom-root-ca-secret --from-file=root-ca-crt-in-secret.crt=root-ca-file.crt
+```
+
+```yaml
+web:
+  volumes:
+    - name: custom-root-ca-vol 
+      secret:
+        secretName: custom-root-ca-secret
+
+  volumeMounts:
+    - name: custom-root-ca-vol
+      mountPath: /usr/local/share/ca-certificates/root-ca-name.crt
+      subPath: root-ca-crt-in-secret.crt
+```
