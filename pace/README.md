@@ -52,21 +52,8 @@ Project's [GitHub](https://github.com/dunglas/mercure).
 Mercure requires setup for JWT secrets - one for the publisher, one for subscriber.
 
 In automated environments (most notably stagings) this is done automatically
-in [upsert-configmaps.sh](../../../../tools/k8s/upsert-configmaps.sh). In "manual" environments, a Kubernetes secret
-named `mercure` is required to exist:
-
-```bash
-(
-  mkdir _mercure_keys && cd _mercure_keys
-
-  ssh-keygen -t rsa -b 4096 -m PEM -f MERCURE_PUBLISHER_JWT_KEY
-  openssl rsa -in MERCURE_PUBLISHER_JWT_KEY -pubout -outform PEM -out MERCURE_PUBLISHER_JWT_KEY_PUBLIC
-  ssh-keygen -t rsa -b 4096 -m PEM -f MERCURE_SUBSCRIBER_JWT_KEY
-  openssl rsa -in MERCURE_SUBSCRIBER_JWT_KEY -pubout -outform PEM -out MERCURE_SUBSCRIBER_JWT_KEY_PUBLIC
-)
-  
-kubectl create secret generic mercure --from-file _mercure_keys/
-```
+in [setup-configmaps-and-secrets.sh](../../../../tools/k8s/setup-configmaps-and-secrets.sh). In "manual" environments, a
+Kubernetes secret named `mercure` is required to be created manually. See the script for how to do that.
 
 https://mercure.rocks/docs/hub/config
 
