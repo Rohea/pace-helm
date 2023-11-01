@@ -46,6 +46,7 @@ spec:
               port: 3030
               path: /print/test?preview=1
             initialDelaySeconds: 30
+            timeoutSeconds: 5
           {{- end }}
           resources:
             requests:
