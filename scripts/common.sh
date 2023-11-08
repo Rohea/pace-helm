@@ -51,6 +51,7 @@ wait_for_rollout() {
     echo "- $deploy"
   done
 
+  iteration_idx=1
   while true; do
     all_ok=1
     for deploy in "${_deployments[@]}"; do
@@ -67,6 +68,12 @@ wait_for_rollout() {
       break
     fi
 
+    if [[ $(( iteration_idx % 10 )) == 0 ]]; then
+      echo "This is poll iteration #${iteration_idx}, showing kubernetes events in the namespace:"
+      kubectl -n "$_ns" get event --sort-by=lastTimestamp | sed 's/^/|  |  /g'
+    fi
+
+    iteration_idx=$(( iteration_idx + 1 ))
     sleep 5
   done
   echo "All deployments have been scaled up!"

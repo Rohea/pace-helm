@@ -149,6 +149,13 @@ function wait_for_migration_job_finish()
     echo "$(date +'%H:%M:%S') - Migration job has not finished yet. Status:"
     kubectl -n "$_ns" get pod "$_pod_name" | sed 's/^/|  /g'
 
+    phase=$(kubectl -n "$_ns" get pod "$_pod_name" -o jsonpath="{.status.phase}")
+    if [[ $phase != Running ]]; then
+      echo "|"
+      echo "|  Pod is not in a 'Running' state, printing its events:"
+      kubectl -n "$_ns" get event --field-selector involvedObject.name="$_pod_name" --sort-by=lastTimestamp -o custom-columns="LAST SEEN:.lastTimestamp,REASON:.reason,MESSAGE:.message" | sed 's/^/|  |  /g'
+    fi
+
     sleep 5
   done
 
