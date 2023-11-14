@@ -53,5 +53,12 @@ After the manifest files have been generated with the `generate` command, they c
 The script will take care of scaling down old resources, running migrations and deploying the new app version as described
 above.
 
+### Maintenance mode
+To enable and disable the maintenance mode, run
+
+```
+$ ./scripts/maintenance.sh enable|disable NAMESPACE"
+```
+
 # Contributing
 The source of this repository is in the `rh/rh` project in the private Rohea GitLab. All contributions need to go through there.
