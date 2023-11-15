@@ -231,9 +231,7 @@ mercure:
 
   env:
     extraDirectives:
-      - publish_origins=*
-      - cors_origins=*
-      - anonymous=1
+      - anonymous
 
 #
 # Heartbeat "sidecar" configuration
