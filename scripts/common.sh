@@ -23,6 +23,7 @@ set -euo pipefail
 wait_for_zero_scale() {
   _ns="$1"
 
+  iteration_idx=1
   while true; do
     echo "Checking whether all deployments have been scaled down"
     pods_output=$(kubectl -n "$_ns" get pods -l rohea.com/app=pace,rohea.com/stop-during-deploy='true')
@@ -36,6 +37,13 @@ wait_for_zero_scale() {
     else
       echo "  Deployments have not yet been scaled down. Re-checking in 5 seconds..."
     fi
+
+    if [[ $(( iteration_idx % 10 )) == 0 ]]; then
+      echo "This is poll iteration #${iteration_idx}, showing kubernetes events in the namespace:"
+      kubectl -n "$_ns" get event --sort-by=lastTimestamp | sed 's/^/|  |  /g'
+    fi
+
+    iteration_idx=$(( iteration_idx + 1 ))
 
     sleep 5
   done
