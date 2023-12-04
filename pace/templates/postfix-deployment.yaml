@@ -44,10 +44,25 @@ spec:
             limits:
               memory: 128Mi
               cpu: 100m
+
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
+      # Prefer scheduling the postfix pod on an explicitly labelled node. This is an affinity, not a selector,
+      # so that if there is no such labelled node, the pod will be scheduled anywhere.
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                  - key: rohea.com/node-email-sender
+                    operator: In
+                    values:
+                      - 'true'
+              weight: 1
+
       volumes:
         - name: dkimkeys
           secret:
