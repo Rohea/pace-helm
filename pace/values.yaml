@@ -146,14 +146,34 @@ postfix:
   # In this example, these two records are checked:
   #   - pace-topdanmark-prod._domainkey.rohea.com   # specific for rohea.com
   #   - pace._domainkey.DOMAIN.ORG                  # default for all other sender domains
-  # dkimSelector: pace,rohea.com=pace-topdanmark-prod
-  #               ^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  #                |    |
-  #                |    `- use selector "pace-topdanmark-prod" when sending e-mail from the @rohea.com domain
-  #                `- use "pace" as the default selector if no domain matches
+  # dkim:
+  #   selector: pace,rohea.com=pace-topdanmark-prod
+  #             ^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  #              |    |
+  #              |    `- use selector "pace-topdanmark-prod" when sending e-mail from the @rohea.com domain
+  #              `- use "pace" as the default selector if no domain matches
   #
   # https://github.com/bokysan/docker-postfix#changing-the-dkim-selector
-  dkimSelector: pace
+  #
+  # Note that in order for the selector to work, there must also be an associated 'dkimkeys' secret available for
+  # the postfix pod, with the DKIM keys inside:
+  #   $ kubectl create secret generic dkimkeys --from-file=rohea.com.private=my-key-file.key
+  #                                                        ^^^^^^^^^^^^^^^^^
+  #                             This is a required format. It must be "domain".private. With this secret object,
+  #                             postfix will apply dkim on e-mails sent from "domain". It is possible to specify
+  #                             more domains.
+  dkim:
+    selector: pace
+
+    # Configuration for the 'dkimkeys' Kubernetes secret object. In production environments, you will want to keep this
+    # disabled and create the 'dkimkeys' secret manually (or use e.g. Sendgrid for e-mail sending).
+    dkimkeysSecret:
+      # If false, the dkimkeys secret is not created through the Helm chart.
+      create: false
+      # The dkimkeys Secret content.
+      # Keys must be in format "domain.private", e.g. "rohea.com.private".
+      # Values are the DKIM private keys.
+      data: {}
 
 express:
   enabled: false

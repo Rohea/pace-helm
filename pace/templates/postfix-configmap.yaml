@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: postfix-helm
 data:
-  ALLOWED_SENDER_DOMAINS: {{ .Values.postfix.allowedSenderDomains }}
-  DKIM_SELECTOR: {{ .Values.postfix.dkimSelector }}
+  ALLOWED_SENDER_DOMAINS: "{{ .Values.postfix.allowedSenderDomains }}"
+  DKIM_SELECTOR: "{{ .Values.postfix.dkim.selector }}"
