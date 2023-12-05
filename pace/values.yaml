@@ -42,7 +42,8 @@ ingress:
       # What is the name of the CertManager ClusterIssuer resource to pull the certificate from
       clusterIssuer: cluster-issuer
 
-    # List of IPs allowed to connect to the ingress resource. This will be put into a nginx annotation 'nginx.ingress.kubernetes.io/whitelist-source-range'
+    # List of IPs allowed to connect to the ingress resource.
+    # This will be put into a nginx annotation 'nginx.ingress.kubernetes.io/whitelist-source-range'
     allowedIps: ~ # xx
     # The nginx controller class to use
     class: nginx

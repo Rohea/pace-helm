@@ -26,7 +26,15 @@ spec:
       {{- if (($definition.tls).secretName | default false) }}
       secretName: {{ $definition.tls.secretName }}
       {{- else }}
-      secretName: {{ $.Values.ingress.main.tls.secretName }}-{{ $name }}
+
+      {{- /*
+         Unless overridden, the secretName will be the same as the secretName of the main ingress. There is an odd
+         behavior of the letsencrypt provider where if multiple ingresses use the same hosts, only one 
+         certificate/secret is issued. So all ingresses targeting the same host must use the same TLS secret.
+         
+         Only if the additional ingress is a different host, should the secretName be provided to be something else.
+      */}}
+      secretName: {{ $.Values.ingress.main.tls.secretName }}
       {{- end }}
   {{- end }}
   rules:

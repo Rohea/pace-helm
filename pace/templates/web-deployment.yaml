@@ -65,12 +65,9 @@ spec:
               path: /api/config
             initialDelaySeconds: 30
             periodSeconds: 60
+            failureThreshold: 5
+            timeoutSeconds: 30
           {{- end }}
-          readinessProbe:
-            httpGet:
-              port: 8080
-              path: /api/config
-            periodSeconds: 30
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
       volumes:
