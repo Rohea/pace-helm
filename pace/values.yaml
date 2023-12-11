@@ -129,8 +129,8 @@ scheduler:
       memory: 400Mi # Upper estimate, subject to change based on empirical values
       cpu: 500m
 
-  volumeMounts: {}
-  volumes: {}
+  volumeMounts: []
+  volumes: []
 
 statsd:
   enabled: false
