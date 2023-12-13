@@ -29,6 +29,10 @@ spec:
     spec:
       automountServiceAccountToken: false
       serviceAccountName: {{ .Values.web.serviceAccountName }}
+      {{- with .Values.scheduler.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: scheduler
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
@@ -41,11 +45,13 @@ spec:
           volumeMounts:
             {{- include "pace.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
+            {{- with .Values.scheduler.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
           resources:
             {{- toYaml .Values.scheduler.resources | nindent 12 }}
       volumes:
         {{- include "pace.volumes" . | nindent 8 }}
         {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
+        {{- with .Values.scheduler.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

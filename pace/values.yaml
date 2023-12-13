@@ -120,6 +120,7 @@ messengerConsumers:
       cpu: 500m
 
 scheduler:
+  podSecurityContext: {}
   resources:
     requests:
       memory: 128Mi
@@ -127,6 +128,9 @@ scheduler:
     limits:
       memory: 400Mi # Upper estimate, subject to change based on empirical values
       cpu: 500m
+
+  volumeMounts: []
+  volumes: []
 
 statsd:
   enabled: false
