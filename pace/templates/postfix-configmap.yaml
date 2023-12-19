@@ -5,3 +5,4 @@ metadata:
 data:
   ALLOWED_SENDER_DOMAINS: "{{ .Values.postfix.allowedSenderDomains }}"
   DKIM_SELECTOR: "{{ .Values.postfix.dkim.selector }}"
+  POSTFIX_myhostname: "{{ .Values.postfix.hostname }}"

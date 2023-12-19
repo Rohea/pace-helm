@@ -143,6 +143,11 @@ postfix:
   enabled: true
   image: registry.rohea.com/ops/docker-images/postfix:1.0.0
 
+  # The myhostname postfix configuration. This will be the name of the relay used in the 'HELO something' part of the
+  # SMTP session.
+  # This is probably fine to leave as-is in staging, but in production this should reflect the domain where Pace is.
+  hostname: default.rohea.com
+
   # Space-separated list of domains from which to allow sending
   allowedSenderDomains: rohea.com
 
