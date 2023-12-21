@@ -32,11 +32,21 @@ spec:
             - configMapRef:
                 name: postfix-helm
 
+          # The startup takes a few seconds.
+          # When the supervisor pidfile is present, the startup is in the last stage so we assume it's ok.
+          startupProbe:
+            exec:
+              command:
+                - cat
+                - /tmp/supervisord.pid
+            initialDelaySeconds: 7
+            periodSeconds: 5
+            failureThreshold: 20
+
           volumeMounts:
             - name: dkimkeys  # This is only populated when the 'dkimkeys' secret exists in the namespace. If not, this has no effect.
               mountPath: "/etc/opendkim/keys"
               readOnly: true
-
           resources:
             requests:
               memory: 64Mi
@@ -44,7 +54,6 @@ spec:
             limits:
               memory: 128Mi
               cpu: 100m
-
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
