@@ -90,7 +90,6 @@ web:
       cpu: 100m
     limits:
       memory: 800Mi # Upper estimate, subject to change based on empirical values
-      cpu: 1
 
   # The service account name to use for the pod
   serviceAccountName: default
