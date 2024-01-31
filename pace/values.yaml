@@ -91,6 +91,12 @@ web:
     limits:
       memory: 800Mi # Upper estimate, subject to change based on empirical values
 
+      # This limit essentially means "as much as possible". When limits.cpu is not defined here but
+      # a "child" helm-values.yaml file does define limits.cpu, then 'helm template' outputs 'limits.cpu: null' in the
+      # rendered YAML, instead of omitting the key altogether.
+      cpu: 64
+
+
   # The service account name to use for the pod
   serviceAccountName: default
 
