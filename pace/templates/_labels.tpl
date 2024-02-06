@@ -17,7 +17,7 @@ template 'pace.labels.common' below.
 rohea.com/installation: {{ .global.installationSlug }}
 rohea.com/app: pace
 rohea.com/component: {{ .component }}
-rohea.com/deploy-environment: {{ .global.gitlab.gitlabEnvironment | replace "/" "_" }}
+rohea.com/deploy-environment: {{ .global.gitlab.gitlabEnvironment | replace "/" "_" | trunc 63 }}
 rohea.com/collect_logs: 'true'
 rohea.com/collect_metrics: 'true'
 {{- end }}
