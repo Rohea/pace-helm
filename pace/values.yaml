@@ -91,9 +91,16 @@ web:
     limits:
       memory: 800Mi # Upper estimate, subject to change based on empirical values
 
-      # This limit essentially means "as much as possible". When limits.cpu is not defined here but
-      # a "child" helm-values.yaml file does define limits.cpu, then 'helm template' outputs 'limits.cpu: null' in the
-      # rendered YAML, instead of omitting the key altogether.
+      # This limit essentially means "as much as possible".
+      #
+      # When limits.cpu is defined here as "null" (and this value is not overwritten in another values.yaml file),
+      # then 'helm template' will render it as 'limits.cpu: null'. This causes kubectl to fail, because it expects
+      # a non-null value.
+      # Interestingly, when a "child" values.yaml file defines 'limits.cpu: null', then that key is completely missing
+      # from the rendered YAML file (which is what we want).
+      #
+      # tl;dr - in overriding values.yaml files the value of this can be customized as needed, but _here_ it cannot
+      #         be null. So it's something large enough.
       cpu: 64
 
 
