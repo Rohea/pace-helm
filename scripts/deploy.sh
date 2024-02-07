@@ -111,18 +111,6 @@ ensure_kubectl_context_correct
 
 echo "Deploying app '${APP_NAME}' into namespace '${NAMESPACE}'"
 
-# Returns the phase of a given pod
-#
-#  $1: the Kubernetes namespace where to work
-#  $2: the pod name
-#
-function get_pod_phase() {
-  _ns="$1"
-  _pod_name="$2"
-
-  kubectl -n "$_ns" get pod "$_pod_name" -o jsonpath="{.status.phase}"
-}
-
 #
 # The function will wait for a migration job to finish, both for successful and failed state.
 #
@@ -145,43 +133,43 @@ function wait_for_migration_job_finish()
   done
   echo "The pod associated with the job is: \"$_pod_name\""
 
-  # Wait until the pod is running
   while true; do
-    phase=$(get_pod_phase "$_ns" "$_pod_name")
-    if [[ $phase == Pending ]]; then
-      echo "|"
-      echo "|  Pod is in a 'Pending' phase, printing its events:"
-      kubectl -n "$_ns" get event --field-selector involvedObject.name="$_pod_name" --sort-by=lastTimestamp -o custom-columns="LAST SEEN:.lastTimestamp,REASON:.reason,MESSAGE:.message" | sed 's/^/|  |  /g'
-    else
-      echo "Pod is in a '$phase' phase, continuing"
+    completed_condition=$(kubectl -n "$_ns" get job "$_job_name" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}')
+    if [[ $completed_condition == "True" ]]; then
+      job_result=0
       break
     fi
+
+    failed_condition=$(kubectl -n "$_ns" get job "$_job_name" -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}')
+    if [[ $failed_condition == "True" ]]; then
+      job_result=1
+      break
+    fi
+
+    echo "$(date +'%H:%M:%S') - Migration job has not finished yet. Status:"
+    kubectl -n "$_ns" get pod "$_pod_name" | sed 's/^/|  /g'
+
+    phase=$(kubectl -n "$_ns" get pod "$_pod_name" -o jsonpath="{.status.phase}")
+    if [[ $phase != Running ]]; then
+      echo "|"
+      echo "|  Pod is not in a 'Running' state, printing its events:"
+      kubectl -n "$_ns" get event --field-selector involvedObject.name="$_pod_name" --sort-by=lastTimestamp -o custom-columns="LAST SEEN:.lastTimestamp,REASON:.reason,MESSAGE:.message" | sed 's/^/|  |  /g'
+    fi
+
     sleep 5
   done
 
-  # Stream the logs of the pod. Note that this command will exit with 0 exit code even if the pod terminates with failure.
-  kubectl -n "$_ns" logs -f "$_pod_name"
+  echo "********************************"
+  echo "Migrations job log output (pod $_pod_name)"
+  echo "********************************"
+  kubectl -n "$_ns" logs --tail=-1 "$_pod_name"
+  echo "********************************"
 
-  while true; do
-    # Check the status of the pod - did it succeed?
-    phase=$(get_pod_phase "$_ns" "$_pod_name")
-    if [[ $phase == Running ]]; then
-      echo "Migration pod is still Running, will re-try in 5 seconds"
-      sleep 5
-      continue
-    fi
-
-    if [[ $phase == Succeeded ]]; then
+  if [[ $job_result -eq 1 ]]; then
       echo ""
-      echo "Migration job finished successfully."
-      break
-    fi
-
-    echo ""
-    echo "Migration job finished. Pod phase: '$phase'"
-    echo "Migration job failed! Aborting the deploy. It is possible that the database is in an inconsistent state so automatic rollback is not possible. Please fix everything manually."
-    exit 1
-  done
+      echo "Migration job failed! Aborting the deploy. It is possible that the database is in an inconsistent state so automatic rollback is not possible. Please fix everything manually."
+      exit 1
+  fi
 }
 
 function delete_resource_if_exists()
