@@ -21,9 +21,20 @@ gitVersion:
 # Ingress configuration
 #
 ingress:
+  common:
+    # Annotations to be added to all Ingress resources
+    annotations: ~
+
   main:
     # The host the ingress should be accessible on
     deployUrl: foo.bara
+
+    # More URLs where the site should be served, in addition to the deployUrl.
+    # Note: the additionalUrls currently do not work with LetsEncrypt! Required change to have it work is to have
+    #       multiple secrets generated - one for each host. At the moment this only works well with TLS handled by
+    #       AWS ALB.
+    # Note: this could be refactored with deployUrl to only be a list.
+    additionalUrls: []
 
     # TLS serving configuration
     tls:

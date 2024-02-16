@@ -6,6 +6,10 @@ metadata:
   name: ingress-pacedev
   annotations:
     {{- include "pace.annotations.ingress" (dict "local" .Values.ingress.main "main" $.Values.ingress.main) | nindent 4 }}
+
+    {{- with .Values.ingress.common.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
     pace.rohea.com/component: pace-ingress
