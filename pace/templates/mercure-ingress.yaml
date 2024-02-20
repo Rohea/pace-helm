@@ -6,10 +6,6 @@ metadata:
   name: ingress-mercure
   annotations:
     {{- include "pace.annotations.ingress" (dict "local" .Values.ingress.main "main" $.Values.ingress.main) | nindent 4 }}
-
-    {{- with .Values.ingress.common.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
   labels:
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
     pace.rohea.com/component: pace-ingress
@@ -32,18 +28,5 @@ spec:
                 name: mercure
                 port:
                   number: 80
-
-    {{- range .Values.ingress.main.additionalUrls }}
-    - host: "{{ . }}"
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/.well-known/mercure"
-            backend:
-              service:
-                name: mercure
-                port:
-                  number: 80
-    {{- end }}
 
 {{- end }}
