@@ -279,8 +279,8 @@ mercure:
   debug: false
 
   image:
-    repository: dunglas/mercure
-    tag: v0.15
+    repository: registry.rohea.com/ops/docker-images/mercure
+    tag: 0.15.0
 
   env:
     extraDirectives:

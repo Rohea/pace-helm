@@ -105,3 +105,13 @@
       secretProviderClass: statsd-config-secret
 {{- end }}
 {{- end }}
+
+{{/******************************************************************************************************************/}}
+{{- /*
+SP-83 Running containers as root user should be avoided
+*/}}
+{{- define "pace-php.security.runAsRohea" -}}
+runAsNonRoot: true
+runAsUser: 1000
+runAsGroup: 1000
+{{- end }}

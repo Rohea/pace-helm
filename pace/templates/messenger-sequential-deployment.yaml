@@ -31,6 +31,8 @@ spec:
         rohea.com/stop-during-deploy: 'true'
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        {{- include "pace-php.security.runAsRohea" . | nindent 8 }}
       serviceAccountName: {{ .Values.web.serviceAccountName }}
       containers:
         - name: messenger-consumer

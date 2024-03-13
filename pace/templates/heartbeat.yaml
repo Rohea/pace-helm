@@ -32,6 +32,10 @@ spec:
         rohea.com/stop-during-deploy: 'true'
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        # Out-of-the-box heartbeat image does not have the 'rohea' user, but the 'heartbeat' user is uid 1000,
+        # which is what the included Helm template uses
+        {{- include "pace-php.security.runAsRohea" . | nindent 8 }}
       containers:
         - name: heartbeat
           image: {{ .Values.heartbeat.image.repository }}:{{ .Values.heartbeat.image.tag }}
