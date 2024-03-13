@@ -33,6 +33,8 @@ spec:
         pace.rohea.com/allow-network-db: "true"
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        {{- include "pace-php.security.runAsRohea" . | nindent 8 }}
       containers:
         - name: php-nginx
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}

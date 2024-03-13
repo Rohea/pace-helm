@@ -19,6 +19,8 @@ spec:
         pace.rohea.com/allow-network-db: "true"
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        {{- include "pace-php.security.runAsRohea" . | nindent 8 }}
       restartPolicy: Never
       serviceAccountName: {{ .Values.web.serviceAccountName }}
       containers:
