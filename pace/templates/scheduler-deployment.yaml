@@ -29,10 +29,9 @@ spec:
     spec:
       automountServiceAccountToken: false
       serviceAccountName: {{ .Values.web.serviceAccountName }}
-      {{- with .Values.scheduler.podSecurityContext }}
       securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- include "pace-php.security.runAsRohea" . | nindent 8 }}
+        {{- toYaml .Values.scheduler.podSecurityContext | nindent 8 }}
       containers:
         - name: scheduler
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
