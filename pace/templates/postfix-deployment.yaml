@@ -31,6 +31,14 @@ spec:
           envFrom:
             - configMapRef:
                 name: postfix-helm
+          {{- if not .Values.postfix.hostname }}
+          # Unless postfix.hostname is explicitly provided, the node's name will be used in postfix
+          env:
+            - name: POSTFIX_myhostname
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          {{- end }}
 
           # The startup takes a few seconds.
           # When the supervisor pidfile is present, the startup is in the last stage so we assume it's ok.
