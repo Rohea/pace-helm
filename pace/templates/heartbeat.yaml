@@ -36,6 +36,8 @@ spec:
         # Out-of-the-box heartbeat image does not have the 'rohea' user, but the 'heartbeat' user is uid 1000,
         # which is what the included Helm template uses
         {{- include "pace-php.security.runAsRohea" . | nindent 8 }}
+        supplementalGroups:
+          - 0
       containers:
         - name: heartbeat
           image: {{ .Values.heartbeat.image.repository }}:{{ .Values.heartbeat.image.tag }}
@@ -51,7 +53,6 @@ spec:
       volumes:
         - name: config
           configMap:
-            defaultMode: 0640
             name: heartbeat-config
 
 ---
