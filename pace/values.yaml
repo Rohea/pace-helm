@@ -23,7 +23,11 @@ gitVersion:
 ingress:
   common:
     # Annotations to be added to all Ingress resources
-    annotations: ~
+    annotations: {}
+
+  mercure:
+    # Annotations to be added to the Mercure ingress resource
+    annotations: {}
 
   main:
     # The host the ingress should be accessible on
