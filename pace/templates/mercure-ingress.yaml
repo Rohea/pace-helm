@@ -10,6 +10,11 @@ metadata:
     {{- with .Values.ingress.common.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
+
+    {{- with .Values.ingress.mercure.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+
   labels:
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
     pace.rohea.com/component: pace-ingress

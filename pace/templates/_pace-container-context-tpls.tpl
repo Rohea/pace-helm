@@ -9,6 +9,8 @@
     optional: true
 - configMapRef:
     name: php-helm
+- configMapRef:
+    name: pace-helm
 {{- if eq .Values.deployContext "microk8s" }}
 - configMapRef:
     name: pace
@@ -18,6 +20,9 @@
 {{- end }}
 
 {{- define "pace.volumeMounts" }}
+- name: jwt-secret-volume
+  mountPath: "/pace/config/jwt/kubernetes/"
+  readOnly: true
 {{- if eq .Values.deployContext "microk8s" }}{{- end }}
 {{- if eq .Values.deployContext "azure" }}
 
@@ -40,6 +45,9 @@
 {{- end }}
 
 {{- define "pace.volumes" }}
+- name: jwt-secret-volume
+  secret:
+    secretName: jwt
 {{- if eq .Values.deployContext "microk8s" }}{{- end }}
 {{- if eq .Values.deployContext "azure" }}
 - name: pace-config-secret-volume
