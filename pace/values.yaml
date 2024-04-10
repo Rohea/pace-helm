@@ -95,7 +95,7 @@ php:
   env: {}
 
 web:
-  # Docker image of php-nginx to deploy
+  replicas: 1
   image:
     repository: undefined
     tag: undefined
