@@ -157,6 +157,7 @@ def main():
             'templates/migrations-job.yaml',
             'templates/secrets-provider.yaml',
             'templates/php-configmap.yaml',
+            'templates/web-configmap.yaml',
         ]
     ]
 
