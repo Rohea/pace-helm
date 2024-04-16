@@ -22,7 +22,7 @@ spec:
     matchLabels:
       {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
   progressDeadlineSeconds: 300
-  replicas: 1
+  replicas: {{ .Values.web.replicas }}
   template:
     metadata:
       labels:
