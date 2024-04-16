@@ -53,7 +53,7 @@ spec:
             {{- include "pace.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end}}
           resources:
-            {{- toYaml .Values.web.resources | nindent 12 }}
+            {{- toYaml .Values.portal.resources | nindent 12 }}
           {{- if .Values.enableKubernetesProbes }}
           livenessProbe:
             httpGet:
