@@ -163,6 +163,15 @@ statsd:
   enabled: false
   image: registry.rohea.com/ops/docker-images/statsd:1.1.8
 
+portal:
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 800Mi
+      cpu: 2
+
 maintenancePage:
   image: todo-maintenance-page
 
