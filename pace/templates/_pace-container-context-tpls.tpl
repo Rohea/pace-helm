@@ -1,6 +1,15 @@
 {{/******************************************************************************************************************/}}
 
 {{- define "pace.envFrom" }}
+{{/*
+- The order of preference when importing env variables is "last imported wins". Lower priority thus need to be imported
+  first.
+*/}}
+{{- if eq .Values.deployContext "microk8s" }}
+- configMapRef:
+    name: pace
+{{- end }}
+
 - secretRef:
     name: mercure
     optional: true
@@ -11,10 +20,7 @@
     name: php-helm
 - configMapRef:
     name: pace-helm
-{{- if eq .Values.deployContext "microk8s" }}
-- configMapRef:
-    name: pace
-{{- end }}
+
 {{- if eq .Values.deployContext "azure" }}
 {{- end }}
 {{- end }}
