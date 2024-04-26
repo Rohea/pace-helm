@@ -35,7 +35,7 @@ spec:
         {{- include "pace-php.security.runAsRohea" . | nindent 8 }}
       serviceAccountName: {{ .Values.web.serviceAccountName }}
       containers:
-        - name: messenger-consumer
+        - name: messenger-consumer-sequential
           image: {{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}
           args:
             - messenger-sequential
