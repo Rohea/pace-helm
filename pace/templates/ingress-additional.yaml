@@ -18,6 +18,11 @@ metadata:
     {{- with $.Values.ingress.common.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
+    {{- if $definition.annotations | default false }}
+      {{- with $definition.annotations }}
+      {{- toYaml . | nindent 4 }}
+      {{- end }}
+    {{- end }}
   labels:
     pace.rohea.com/component: pace-ingress
     {{- include "pace.labels.deployTag" $ | nindent 4 }}
