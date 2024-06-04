@@ -48,12 +48,7 @@ spec:
                  name: mercure-helm
 
           resources:
-            requests:
-              memory: 50Mi
-              cpu: 100m
-            limits:
-              memory: 100Mi
-              cpu: 300m
+            {{- toYaml .Values.mercure.resources | nindent 12 }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

@@ -294,6 +294,14 @@ mercure:
     repository: registry.rohea.com/ops/docker-images/mercure
     tag: 0.15.0
 
+  resources:
+    requests:
+      memory: 50Mi
+      cpu: 100m
+    limits:
+      memory: 100Mi
+      cpu: 300m
+
   env:
     extraDirectives:
       - anonymous
