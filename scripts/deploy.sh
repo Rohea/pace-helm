@@ -149,17 +149,14 @@ function wait_for_migration_job_finish()
   while true; do
     phase=$(get_pod_phase "$_ns" "$_pod_name")
     if [[ $phase == Pending ]]; then
-      echo "|-------------------------------------------------------"
+      echo "|"
       echo "|  Pod is in a 'Pending' phase, printing its events:"
       kubectl -n "$_ns" get event --field-selector involvedObject.name="$_pod_name" --sort-by=lastTimestamp -o custom-columns="LAST SEEN:.lastTimestamp,REASON:.reason,MESSAGE:.message" | sed 's/^/|  |  /g'
-      echo "|  NOTE: also check earlier events printed out by the script. The events only stick around for a limited period of time and they stop being printed out after a few minutes."
-      echo "|  For troubleshooting of deploy problems, see https://git.rohea.com/ops/documentation/-/blob/master/docs/ci-cd/ci-cd.md ."
-      sleep 10
     else
       echo "Pod is in a '$phase' phase, continuing"
-      sleep 2  # Just in case the pod still needs a little time to properly come up /shrug
       break
     fi
+    sleep 5
   done
 
   # Stream the logs of the pod. Note that this command will exit with 0 exit code even if the pod terminates with failure.
