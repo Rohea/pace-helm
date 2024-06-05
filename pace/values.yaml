@@ -225,6 +225,13 @@ express:
   image:
     repository: undefined-repo
     tag: undefined-tag
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
 
 paceDev:
   enabled: false
