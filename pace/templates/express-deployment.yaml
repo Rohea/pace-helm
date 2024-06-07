@@ -50,12 +50,7 @@ spec:
             timeoutSeconds: 5
           {{- end }}
           resources:
-            requests:
-              memory: 128Mi
-              cpu: 100m
-            limits:
-              memory: 512Mi
-              cpu: 500m
+            {{- toYaml .Values.express.resources | nindent 12 }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
