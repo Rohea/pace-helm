@@ -154,6 +154,7 @@ def main():
     migrations_render_templates = [
         f'--show-only {template}'
         for template in [
+            'templates/migrations-configmap.yaml',
             'templates/migrations-job.yaml',
             'templates/secrets-provider.yaml',
             'templates/php-configmap.yaml',

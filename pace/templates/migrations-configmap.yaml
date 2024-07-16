@@ -1,0 +1,8 @@
+{{/* Configmap loaded by the migration pod */}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migrations
+data:
+  DB_BOOTSTRAP_ENABLED: {{ .Values.migrations.bootstrapEnabled | quote }}

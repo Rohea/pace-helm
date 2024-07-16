@@ -91,8 +91,22 @@ ingress:
 
 # Configuration for all PHP pods (web, messenger, scheduler, migrations)
 php:
+  # Symfony APP_ENV environment
+  appEnv: staging
+
+  # Symfony APP_DEBUG
+  appDebug: '0'
+
+  # BaseUrl for the deployment, without https://
+  baseUrl: 'pace.example.com'
+
+  corsAllowMultipleOrigin: '0'
+
   # Environment variables to inject to the pods, e.g. FOO: BAR
   env: {}
+
+migrations:
+  bootstrapEnabled: true
 
 web:
   replicas: 1
@@ -173,7 +187,7 @@ portal:
       cpu: 2
 
 maintenancePage:
-  image: todo-maintenance-page
+  image: placeholder-maintenance-page
 
 postfix:
   enabled: true
@@ -235,7 +249,7 @@ express:
 
 paceDev:
   enabled: false
-  image: todo-pacedev
+  image: placeholder-pacedev
 
 mongoAtlasLogforwarder:
   enabled: false

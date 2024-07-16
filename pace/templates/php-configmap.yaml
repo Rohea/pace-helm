@@ -5,6 +5,12 @@ kind: ConfigMap
 metadata:
   name: php-helm
 data:
+  APP_ENV: {{ .Values.php.appEnv }}
+  APP_DEBUG: {{ .Values.php.appDebug | quote }}
+  URI_SCHEME: https
+  BASEURL: {{ .Values.php.baseUrl }}
+  BEHIND_TRUSTED_PROXY: 'true'
+  CORS_ALLOW_MULTIPLE_ORIGIN: {{ .Values.php.corsAllowMultipleOrigin | quote }}
   {{- with .Values.php.env }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
