@@ -163,7 +163,8 @@ function wait_for_migration_job_finish()
   done
 
   # Stream the logs of the pod. Note that this command will exit with 0 exit code even if the pod terminates with failure.
-  kubectl -n "$_ns" logs -f "$_pod_name"
+  #   Filter out some lines that we are not interested in seeing in the the CI log output, like audit logs
+  kubectl -n "$_ns" logs -f "$_pod_name" | grep -v -E '"channel":"audit"'
 
   while true; do
     # Check the status of the pod - did it succeed?
