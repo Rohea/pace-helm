@@ -31,15 +31,15 @@ spec:
           imagePullPolicy: Always
           resources:
             {{- toYaml .Values.migrationsJob.resources | nindent 12 }}
+          env:
+            {{- range $k, $v := .Values.migrationsJob.env }}
+            - name: "{{ $k }}"
+              value: "{{ $v }}"
+            {{- end }}
           envFrom:
             {{- include "pace.envFrom" . | nindent 12 }}
             {{- with .Values.web.envFrom }}{{- toYaml . | nindent 12 }}{{- end }}
             {{- include "pace.migrations.envFrom" . | nindent 12 }}
-          env:
-            {{- if .Values.migrationsJob.additionalFlags }}
-            - name: MIGRATIONS_CMD_ADDITIONAL_FLAGS
-              value: {{ .Values.migrationsJob.additionalFlags }}
-            {{- end }}
           volumeMounts:
             {{- include "pace.volumeMounts" . | nindent 12 }}
             {{- with .Values.web.volumeMounts }}{{- toYaml . | nindent 12 }}{{- end }}

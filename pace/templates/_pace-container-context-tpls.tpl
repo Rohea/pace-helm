@@ -77,8 +77,6 @@
 
 {{- define "pace.migrations.envFrom" }}
 {{- if eq .Values.deployContext "microk8s" }}
-- configMapRef:
-    name: migrations
 - secretRef:
     name: migrations-bootstrap-credentials
     optional: true

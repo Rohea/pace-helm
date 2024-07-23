@@ -105,9 +105,6 @@ php:
   # Environment variables to inject to the pods, e.g. FOO: BAR
   env: {}
 
-migrations:
-  bootstrapEnabled: true
-
 web:
   replicas: 1
   image:
@@ -266,9 +263,15 @@ sshTunneller:
     autosshPort: ~
 
 migrationsJob:
+  env:
+    DB_BOOTSTRAP_KIND: 'none'
+    # MIGRATIONS_RUN_MULTIPLE_MAJOR: 'false'
+    # DB_BOOTSTRAP_SRC_MONGODB_URL: ~
+    # DB_BOOTSTRAP_SRC_MONGODB_DB_NAME: ~
+    # DB_BOOTSTRAP_FIXTURES_GROUPS: ~
+
   enabled: false
   datetime: undefined
-  additionalFlags:
   resources:
     requests:
       memory: 1024Mi

@@ -139,7 +139,7 @@ def main():
     flags_str = ' '.join(flags)
     migrations_flags_str = ''
     if args.migrations_run_multiple_major:
-        migrations_flags_str = '--set migrationsJob.additionalFlags="--run-multiple-major"'
+        migrations_flags_str = '--set migrationsJob.env.MIGRATIONS_RUN_MULTIPLE_MAJOR="true"'
 
     deployTag = datetime.now().timestamp()
 
@@ -154,7 +154,6 @@ def main():
     migrations_render_templates = [
         f'--show-only {template}'
         for template in [
-            'templates/migrations-configmap.yaml',
             'templates/migrations-job.yaml',
             'templates/secrets-provider.yaml',
             'templates/php-configmap.yaml',
