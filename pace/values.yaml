@@ -158,6 +158,7 @@ messengerConsumers:
       cpu: 500m
 
 scheduler:
+  enabled: true
   podSecurityContext: {}
   resources:
     requests:

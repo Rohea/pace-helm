@@ -12,12 +12,13 @@ metadata:
     rohea.com/stop-during-deploy: 'true'
   annotations:
     {{- include "pace.annotations.change-cause" . | nindent 4 }}
+    rohea.com/target-replicas: '{{ .Values.scheduler.enabled | ternary 1 0 }}'
 spec:
   selector:
     matchLabels:
       {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
   progressDeadlineSeconds: 300
-  replicas: 1
+  replicas: {{ .Values.scheduler.enabled | ternary 1 0 }}
   strategy:
     type: Recreate
   template:
