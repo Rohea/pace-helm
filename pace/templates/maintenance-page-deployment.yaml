@@ -23,16 +23,20 @@ spec:
         {{- include "pace.labels.component" $componentDict | nindent 8 }}
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
       containers:
         - name: maintenance-page
           image: {{ .Values.maintenancePage.image }}
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               protocol: TCP
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
-              port: 80
+              port: 8080
               path: /
             initialDelaySeconds: 10
             periodSeconds: 10
