@@ -166,14 +166,18 @@ maintenance_enable() {
 
   patch_ingresses_to_maintenance_page "$_ns"
 
-  echo "Will scale down the following deployments:"
   deployments_to_scale_down=$(get_deployments_to_scale "$_ns")
-  for d in $deployments_to_scale_down; do
-    echo "  - '${d}'"
-  done
+  if [[ -n $deployments_to_scale_down ]]; then
+    echo "Will scale down the following deployments:"
+    for d in $deployments_to_scale_down; do
+      echo "  - '${d}'"
+    done
 
-  kubectl -n "$_ns" scale deployment -l rohea.com/stop-during-deploy='true' --replicas 0
-  wait_for_zero_scale "$_ns"
+    kubectl -n "$_ns" scale deployment -l rohea.com/stop-during-deploy='true' --replicas 0
+    wait_for_zero_scale "$_ns"
+  else
+    echo "No deployments to scale down, continuing"
+  fi
 }
 
 maintenance_disable() {

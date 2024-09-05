@@ -161,9 +161,18 @@ def main():
         ]
     ]
 
+    maintenance_page_templates = [
+        f'--show-only {template}'
+        for template in [
+            'templates/maintenance-page-service.yaml',
+            'templates/maintenance-page-deployment.yaml',
+        ]
+    ]
+
     deploy_notes_fn = 'deploy_notes.yaml'
     for cmd, target_fn in [
         (f'helm template --set deployTag={deployTag} --set migrationsJob.datetime={timestamp} --set migrationsJob.enabled=true {" ".join(migrations_render_templates)} {flags_str} {migrations_flags_str} {helm_root.resolve()}', 'migrations-job.yaml'),
+        (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()} {" ".join(maintenance_page_templates)}', 'maintenance-page-stack.yaml'),
         (f'helm template --set deployTag={deployTag} {flags_str} {helm_root.resolve()}', 'pace-stack.yaml'),
         (f'helm template --set deployTag={deployTag} --set renderNotes=true --show-only templates/notes.yaml {flags_str} {helm_root.resolve()}', deploy_notes_fn),
     ]:
