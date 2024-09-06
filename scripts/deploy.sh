@@ -4,6 +4,7 @@ set -e -E
 
 pace_stack_fn=pace-stack.yaml
 migrations_fn=migrations-job.yaml
+maintenance_stack_fn=maintenance-page-stack.yaml
 
 help() {
   echo "Usage: deploy.sh APP_NAME NAMESPACE
@@ -201,6 +202,15 @@ function delete_resource_if_exists()
 if ! kubectl describe ns/"$NAMESPACE" >/dev/null 2>&1; then
   echo "Namespace '$NAMESPACE' does not exist yet, creating..."
   kubectl create ns "$NAMESPACE"
+fi
+
+if [[ -f ${maintenance_stack_fn} ]]; then
+  echo "Maintenance page stack file exists ($maintenance_stack_fn), applying..."
+  cat "$maintenance_stack_fn"
+  kubectl -n "$NAMESPACE" apply -f "${maintenance_stack_fn}"
+  sleep 3
+else
+  echo "Maintenance page stack file does not exist ($maintenance_stack_fn), continuing with the deploy without applying..."
 fi
 
 maintenance_enable "$NAMESPACE"
