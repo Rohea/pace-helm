@@ -29,7 +29,7 @@ spec:
         runAsGroup: 101
       containers:
         - name: maintenance-page
-          image: {{ .Values.maintenancePage.image }}
+          image: {{ .Values.maintenancePage.image.repository }}:{{ .Values.maintenancePage.image.tag }}
           ports:
             - containerPort: 8080
               protocol: TCP
