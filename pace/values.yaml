@@ -185,7 +185,9 @@ portal:
       cpu: 2
 
 maintenancePage:
-  image: placeholder-maintenance-page
+  image:
+    repository: placeholder-maintenance-page
+    tag: placeholder-tag
 
 postfix:
   enabled: true
