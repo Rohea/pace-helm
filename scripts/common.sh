@@ -54,17 +54,11 @@ wait_for_rollout() {
   shift
   _deployments=("$@")
 
-  # 10 minutes to roll out the deployments should be enough, even taking into account the waiting time for cluster
-  # resources to free up (other deployments getting torn down). We do not want to wait too long.
-  # Note that this does not include the time for migrations to finish.
-  _rollout_timeout="${DEPLOY_ROLLOUT_TIMEOUT:-600}"
-
   echo "Checking whether all deployments have been scaled up:"
   for deploy in "${_deployments[@]}"; do
     echo "- $deploy"
   done
 
-  seconds_at_start=$(date +%s)
   iteration_idx=1
   while true; do
     all_ok=1
@@ -85,13 +79,6 @@ wait_for_rollout() {
     if [[ $(( iteration_idx % 10 )) == 0 ]]; then
       echo "This is poll iteration #${iteration_idx}, showing kubernetes events in the namespace:"
       kubectl -n "$_ns" get event --sort-by=lastTimestamp | sed 's/^/|  |  /g'
-    fi
-
-    seconds_elapsed=$(( $(date +%s) - $seconds_at_start ))
-    echo "Seconds elapsed: $seconds_elapsed (timeout at $_rollout_timeout)"
-    if [[ $seconds_elapsed > $_rollout_timeout ]]; then
-      echo "Deployment exceeded the timeout. Aborting! The deployment will be left in its current state for manual inspection."
-      exit 1
     fi
 
     iteration_idx=$(( iteration_idx + 1 ))
