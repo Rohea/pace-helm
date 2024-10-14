@@ -89,7 +89,7 @@ wait_for_rollout() {
 
     seconds_elapsed=$(( $(date +%s) - $seconds_at_start ))
     echo "Seconds elapsed: $seconds_elapsed (timeout at $_rollout_timeout)"
-    if [[ $seconds_elapsed > $_rollout_timeout ]]; then
+    if [[ $seconds_elapsed -gt $_rollout_timeout ]]; then
       echo "Deployment exceeded the timeout. Aborting! The deployment will be left in its current state for manual inspection."
       exit 1
     fi
