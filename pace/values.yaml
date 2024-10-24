@@ -333,36 +333,6 @@ mercure:
     extraDirectives:
       - anonymous
 
-#
-# Heartbeat "sidecar" configuration
-# See https://www.elastic.co/guide/en/beats/heartbeat/current/monitor-options.html
-#
-heartbeat:
-  enabled: false
-  image:
-    repository: 'docker.elastic.co/beats/heartbeat'
-    tag: '8.7.1'
-
-  monitor:
-     # Heartbeat monitor ID. Different monitors are grouped together through the same IDs.
-     # The chart will create two monitors based on the given parameter:
-     #   ${ID}-smoketest-monitor
-     #   ${ID}-frontpage-monitor
-     id:
-     # Heartbeat monitor human-readable name. If multiple monitors of the same ID have different names, only one is used and others ignored.
-     # The chart will create two monitors based on the given parameter:
-     #   ${NAME} API
-     #   ${NAME} Frontpage
-     name:
-     # The main URL of the Pace instance. Must be the root URL - API status check and potentially other diagnostic paths will be appended to it automatically.
-     url: # https://foo.bar
-
-     # # Optional. If a custom certificate authority is needed to run the monitor HTTPS request, provide its certificate
-     # # in a PEM format.
-     # customCa: |
-     #   -----BEGIN CERTIFICATE-----
-     #   MIIFB...
-
 # If true, Kubernetes liveness, startup and readiness probes will be configured for the resources. Disabling this
 # may be useful in dev where one manually fiddles with the deployed environment and does not want Kubernetes to
 # restart the containers automatically.
