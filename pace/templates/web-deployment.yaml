@@ -67,6 +67,14 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
+      topologySpreadConstraints:
+        # Prefer scheduling the web pods across different nodes to prevent underutilization.
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
       volumes:
         {{- include "pace.volumes" . | nindent 8 }}
         {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
