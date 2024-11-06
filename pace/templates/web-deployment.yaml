@@ -74,7 +74,7 @@ spec:
           whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
-              {{- include "pace.labels.selectorLabels" $componentDict | nindent 6 }}
+              {{- include "pace.labels.selectorLabels" $componentDict | nindent 14 }}
       volumes:
         {{- include "pace.volumes" . | nindent 8 }}
         {{- with .Values.web.volumes }}{{- toYaml . | nindent 8 }}{{- end }}
