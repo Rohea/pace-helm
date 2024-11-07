@@ -235,7 +235,7 @@ postfix:
       data: {}
 
 express:
-  enabled: false
+  enabled: true
   image:
     repository: undefined-repo
     tag: undefined-tag
