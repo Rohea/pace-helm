@@ -11,6 +11,7 @@ data:
   BASEURL: {{ .Values.php.baseUrl }}
   BEHIND_TRUSTED_PROXY: 'true'
   CORS_ALLOW_MULTIPLE_ORIGIN: {{ .Values.php.corsAllowMultipleOrigin | quote }}
+  PHP_IDE_CONFIG: "serverName={{ .Values.installationSlug }}"
   {{- with .Values.php.env }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
