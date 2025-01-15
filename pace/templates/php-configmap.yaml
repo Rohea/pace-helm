@@ -6,7 +6,6 @@ metadata:
   name: php-helm
 data:
   APP_ENV: {{ .Values.php.appEnv }}
-  APP_DEBUG: {{ .Values.php.appDebug | quote }}
   URI_SCHEME: https
   BASEURL: {{ .Values.php.baseUrl }}
   BEHIND_TRUSTED_PROXY: 'true'
