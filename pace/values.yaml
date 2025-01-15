@@ -94,9 +94,6 @@ php:
   # Symfony APP_ENV environment
   appEnv: staging
 
-  # Symfony APP_DEBUG
-  appDebug: '0'
-
   # BaseUrl for the deployment, without https://
   baseUrl: 'pace.example.com'
 
